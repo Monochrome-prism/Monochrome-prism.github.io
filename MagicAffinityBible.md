@@ -1,6 +1,6 @@
-# Magic Affinity - Game Design Document
+# Branded For Death: Magic Affinity - Game Design Document
 
-**Version:** 3.2.2
+**Version:** 3.3.0
 **Last Updated:** November 14, 2025
 **Status:** Complete Phase 3 - Meta-Progression with Stackable Upgrades
 
@@ -24,7 +24,7 @@ See also:
 2. [Design Philosophy](#design-philosophy)
 3. [Technical Specifications](#technical-specifications)
 4. [Game Design](#game-design)
-5. [Wizard Stats](#wizard-stats)
+5. [Player Character](#player-character)
 6. [Elemental System](#elemental-system)
 7. [Game Systems](#game-systems)
 8. [Art & Audio](#art--audio)
@@ -33,7 +33,7 @@ See also:
 
 ## 🎮 Project Overview
 
-**Magic Affinity** is a roguelike survivor game inspired by Vampire Survivors and Brotato. Players control a Wizard who masters one of 10 elemental magic types. Survive waves of increasingly difficult enemies while leveling up and choosing synergistic upgrades that build upon your chosen element.
+**Branded For Death: Magic Affinity** is a roguelike survivor game inspired by Vampire Survivors and Brotato. Players control a mysterious Suited Man who masters one of 10 elemental magic types. Survive waves of increasingly difficult enemies while leveling up and choosing synergistic upgrades that build upon your chosen element.
 
 **Core Pillars:**
 1. **Elemental Mastery** - 10 elements with unique mechanics and 4 specialized upgrades each
@@ -125,7 +125,21 @@ Collect XP → Level Up → Choose Upgrade → Repeat → Death → View Stats �
 
 ---
 
-## 👤 Wizard Stats
+## 👤 Player Character
+
+### The Suited Man
+The player character is a mysterious man in a suit, complete with top hat and sunglasses. His appearance adapts to the chosen element, with his attire changing color to match his magical affinity.
+
+**Visual Design:**
+- **Top Hat:** Element-colored crown with darker brim (0.8x brightness)
+- **Sunglasses:** Always black (curved lenses)
+- **Suit Jacket:** Element-colored trapezoid shape (wider shoulders, narrower waist)
+- **Collar/Lapels:** Darker element color accent
+- **Arms & Legs:** Element-colored
+- **Skin/Hands:** Pale beige (0xFFE4C4)
+- **Pose:** One arm at side, one arm raised (waving/gesturing)
+- **Hitbox:** 15px radius circle
+- **Total Height:** ~45px
 
 ### Base Stats
 | Stat | Value | Notes |
@@ -138,20 +152,20 @@ Collect XP → Level Up → Choose Upgrade → Repeat → Death → View Stats �
 | Attack Speed | N/A | Uses orbiting orbs |
 
 ### Combat Mechanic
-- **Orbiting Orbs:** Start with 2 orbs rotating around wizard
+- **Orbiting Orbs:** Start with 2 orbs rotating around player
 - **Orbit Distance:** 50 units (upgradeable)
 - **Rotation Speed:** 2x base (upgradeable)
 - **Hit Cooldown:** 500ms per enemy (prevents multi-hitting)
 - **Orb Count:** 2-3 depending on element choice
 
 ### Visual Customization
-- Starts **GREY** with no element
-- Upon element selection:
-  - Wizard hat → element color
-  - Robes → element color
-  - Sleeves → element color
-  - Staff orb → element color
-  - Orbiting orbs → element color
+- Starts **GREY** with no element chosen
+- Upon element selection, the following change to element color:
+  - Top hat (crown at full brightness, brim at 0.8x)
+  - Suit jacket
+  - Arms and legs
+  - Orbiting orbs
+- Sunglasses remain **black** regardless of element
 
 ---
 
@@ -538,7 +552,7 @@ At level 1, choose one of 10 elemental types. Each element has:
 **HUD Elements:**
 
 **Top Left Panel:**
-- Character name (Wizard + Element)
+- Character name (Suited Man + Element)
 - Level display
 - HP bar (color-coded: green>50%, orange 25-50%, red<25%)
 - XP bar (blue, shows progress to next level)
@@ -751,11 +765,11 @@ Each element has a dedicated achievement for reaching Wave 11.
 - **Background:** Tiled grass with seasonal variations
 
 ### Pixel Art Specifications
-- Character sprites: 16x16 pixels
+- Character sprites: ~45px tall (procedural graphics)
 - Enemy sprites: 16x16 pixels
 - Projectiles: 8x12 pixels
 - XP Orbs: 8x8 pixels
-- Wizard Orbs: 10x10 pixels
+- Element Orbs: 10x10 pixels
 
 ### Audio Design (Procedural)
 All sound effects generated in real-time using Web Audio API:

@@ -8,7 +8,94 @@
 import { ELEMENTS } from '../config/elements.js';
 
 /**
+ * Draw the Suited Man character (v3.3.0+)
+ * Man in suit with top hat and sunglasses - replaces wizard
+ * @param {Phaser.GameObjects.Graphics} player - Player graphics object (player === graphics)
+ * @returns {void}
+ */
+export function drawSuitedMan(player) {
+    player.clear();
+
+    // Get element color (grey if no element chosen yet)
+    let elementColor = 0x808080; // Grey default
+    if (player && player.element && ELEMENTS[player.element]) {
+        elementColor = ELEMENTS[player.element].color;
+    }
+
+    const skinColor = 0xFFE4C4; // Pale beige
+    const blackColor = 0x000000; // Black sunglasses (always black!)
+
+    // Calculate darker brim color (0.8x brightness)
+    const r = ((elementColor >> 16) & 0xFF) * 0.8;
+    const g = ((elementColor >> 8) & 0xFF) * 0.8;
+    const b = (elementColor & 0xFF) * 0.8;
+    const hatBrimColor = (Math.floor(r) << 16) | (Math.floor(g) << 8) | Math.floor(b);
+
+    // === TOP HAT (element color) ===
+    // Hat crown (tall part - full brightness)
+    player.fillStyle(elementColor, 1);
+    player.fillRect(-5, -22, 10, 8);
+
+    // Hat brim (wide part - darker)
+    player.fillStyle(hatBrimColor, 1);
+    player.fillEllipse(0, -14, 14, 5);
+
+    // === HEAD (pale skin) ===
+    player.fillStyle(skinColor, 1);
+    player.fillCircle(0, -8, 6);
+
+    // === SUNGLASSES (BLACK - always black, curved lenses) ===
+    player.fillStyle(blackColor, 1);
+    // Left lens (curved)
+    player.fillEllipse(-3, -8, 3.5, 2.5);
+    // Right lens (curved)
+    player.fillEllipse(3, -8, 3.5, 2.5);
+    // Bridge
+    player.fillRect(-0.5, -8.5, 1, 2);
+
+    // === SUIT JACKET (element color, trapezoid - wider shoulders, narrower waist) ===
+    player.fillStyle(elementColor, 1);
+    // Upper body (trapezoid shape)
+    player.beginPath();
+    player.moveTo(-6, -2); // Left shoulder
+    player.lineTo(6, -2);  // Right shoulder
+    player.lineTo(4, 8);   // Right waist
+    player.lineTo(-4, 8);  // Left waist
+    player.closePath();
+    player.fillPath();
+
+    // Collar/lapels (darker accent)
+    player.fillStyle(hatBrimColor, 1);
+    player.fillTriangle(-6, -2, -3, -2, -4, 2);
+    player.fillTriangle(6, -2, 3, -2, 4, 2);
+
+    // === ARMS (element color) ===
+    // Right arm (at side)
+    player.fillStyle(elementColor, 1);
+    player.fillRect(6, 0, 2, 10);
+
+    // Left arm (raised - waving/gesturing)
+    player.fillRect(-8, -8, 2, 6);
+    player.fillRect(-10, -10, 2, 4); // Upper raised part
+
+    // === HANDS (pale skin) ===
+    player.fillStyle(skinColor, 1);
+    // Right hand
+    player.fillCircle(7, 10, 2);
+    // Left hand (raised)
+    player.fillCircle(-9, -10, 2);
+
+    // === LEGS (element color) ===
+    player.fillStyle(elementColor, 1);
+    // Left leg
+    player.fillRect(-3, 8, 3, 8);
+    // Right leg
+    player.fillRect(0, 8, 3, 8);
+}
+
+/**
  * Draw the Wizard character
+ * @deprecated Use drawSuitedMan instead (v3.3.0+)
  * @param {Phaser.GameObjects.Graphics} player - Player graphics object (player === graphics)
  * @returns {void}
  */
