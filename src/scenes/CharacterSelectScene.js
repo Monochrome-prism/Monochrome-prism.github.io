@@ -86,6 +86,15 @@ export class CharacterSelectScene extends Phaser.Scene {
                 .setOrigin(0.5);
         }
 
+        // Version number (bottom left)
+        this.add
+            .text(10, 590, "v3.2.1", {
+                fontSize: "14px",
+                fill: "#666666",
+                fontFamily: "Courier New",
+            })
+            .setOrigin(0, 1);
+
         // Fullscreen button
         this.createFullscreenButton();
     }

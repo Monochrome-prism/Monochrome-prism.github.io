@@ -1,6 +1,6 @@
 # Magic Affinity - Game Design Document
 
-**Version:** 3.2.0
+**Version:** 3.2.1
 **Last Updated:** November 14, 2025
 **Status:** Complete Phase 3 - Meta-Progression with Stackable Upgrades
 
@@ -165,9 +165,10 @@ At level 1, choose one of 10 elemental types. Each element has:
 
 ### 🔥 FLAME - Burn Specialist
 **Primary Effect:** Burn (3 damage/second for 3 seconds)
-**Base Damage Bonus:** -5 damage (15 damage) - Balanced for dual flames
+**Base Damage Bonus:** +5 damage (25 damage) - BUFFED +25% from base
 **Attack Rate:** 0.5 seconds (increased fire rate)
 **Attack Pattern:** Dual flamethrower cones (forward AND backward simultaneously)
+**Attack Range:** 125px hit range, 188px visual range (BUFFED +25% from base)
 **Color:** Orange-red (#FF4500)
 **Orbs:** 0 (removed for dual flamethrower system)
 
@@ -201,6 +202,7 @@ At level 1, choose one of 10 elemental types. Each element has:
 ### ⚡ ELECTRIC - Chain Damage Master
 **Primary Effect:** Paralyze (50% chance, 1 second - stuns)
 **Base Damage Bonus:** None (20 damage)
+**Attack Range:** 125px initial target, 75px chain range (base values)
 **Color:** Yellow (#FFFF00)
 **Orbs:** 0 (removed for lightning bolt system)
 
@@ -208,7 +210,7 @@ At level 1, choose one of 10 elemental types. Each element has:
 1. **Chain Lightning** - Attacks jump to 1 nearby enemy (75px, 50% damage)
 2. **Overload** - +10% paralyze chance (stackable: 30%→40%→50%→60%...)
 3. **Static Field** - Paralyzed enemies take 2 damage every 0.5s
-4. **Surge** - +30% damage vs Tank enemies
+4. **Thor's Hammer** - +25% attack range (stackable: 0%→25%→50%→75%...)
 
 ---
 
@@ -229,16 +231,17 @@ At level 1, choose one of 10 elemental types. Each element has:
 ---
 
 ### 💨 WIND - Control & Knockback
-**Primary Effect:** Sleep (50% chance, 2 seconds) + Knockback (always)
+**Primary Effect:** Knockback (200 power)
 **Base Damage Bonus:** +10 damage (30 total)
 **Color:** Light cyan (#E0FFFF)
-**Orbs:** 0 (removed for wind blast system)
+**Orbs:** 0 (removed for boomerang system)
+**Attack Pattern:** Throwing boomerangs that return (1 per second, max 1 simultaneous base)
 
 **Upgrades:**
 1. **Gale Force** - +50% knockback distance
 2. **Zephyr** - +50% knockback chance (5%→7.5%)
 3. **Cyclone** - Knockback affects 3 enemies (closest)
-4. **Suffocate** - +5% sleep chance (50%→55%)
+4. **Hurricane** - +1 additional boomerang (stackable: 1→2→3→4...)
 
 ---
 
@@ -442,7 +445,7 @@ At level 1, choose one of 10 elemental types. Each element has:
 
 **XP Collection:**
 - Blue orbs drop from killed enemies
-- Collect by walking over them (150% collection range)
+- Collect by walking over them (20px collection radius)
 
 ---
 

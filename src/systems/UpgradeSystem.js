@@ -222,8 +222,10 @@ export class UpgradeSystem {
                     this.player.damage += 10; // Water and Wind get +10 base damage
                 } else if (elementKey === 'terra') {
                     this.player.damage += 20; // Terra gets +20 base damage
-                } else if (elementKey === 'nature' || elementKey === 'flame') {
-                    this.player.damage -= 5; // Nature and Flame get -5 base damage (15 total)
+                } else if (elementKey === 'nature') {
+                    this.player.damage -= 5; // Nature gets -5 base damage (15 total)
+                } else if (elementKey === 'flame') {
+                    this.player.damage += 5; // Flame gets +5 base damage (25 total) - BUFFED by 25%
                 }
 
                 // Update character name display
@@ -551,11 +553,20 @@ export class UpgradeSystem {
                     }
                 },
                 {
-                    name: "Surge",
-                    icon: "🌩️",
-                    description: "+30% damage vs tank enemies",
+                    name: "Thor's Hammer",
+                    icon: "🔨",
+                    description: "Increase attack range",
+                    upgradeKey: "thorsHammer",
+                    getDescription: () => {
+                        const stacks = this.player.upgradeStacks?.thorsHammer || 0;
+                        const currentBonus = stacks * 25;
+                        const nextBonus = (stacks + 1) * 25;
+                        return `Thor's Hammer +25% attack range (${currentBonus}% → ${nextBonus}%)`;
+                    },
                     apply: () => {
-                        this.player.surge = (this.player.surge || 1) * 1.3;
+                        if (!this.player.upgradeStacks) this.player.upgradeStacks = {};
+                        this.player.upgradeStacks.thorsHammer = (this.player.upgradeStacks.thorsHammer || 0) + 1;
+                        this.player.electricRangeBonus = (this.player.electricRangeBonus || 0) + 0.25;
                     }
                 }
             ],
@@ -628,11 +639,20 @@ export class UpgradeSystem {
                     }
                 },
                 {
-                    name: "Suffocate",
-                    icon: "😴",
-                    description: "Sleep duration +1 second",
+                    name: "Hurricane",
+                    icon: "🌪️",
+                    description: "Fire +1 additional boomerang",
+                    upgradeKey: "hurricane",
+                    getDescription: () => {
+                        const stacks = this.player.upgradeStacks?.hurricane || 0;
+                        const current = 1 + stacks;
+                        const next = current + 1;
+                        return `Hurricane +1 boomerang (${current} → ${next} simultaneous)`;
+                    },
                     apply: () => {
-                        this.player.sleepDurationBonus = (this.player.sleepDurationBonus || 0) + 1000;
+                        if (!this.player.upgradeStacks) this.player.upgradeStacks = {};
+                        this.player.upgradeStacks.hurricane = (this.player.upgradeStacks.hurricane || 0) + 1;
+                        this.player.maxBoomerangs = 1 + this.player.upgradeStacks.hurricane;
                     }
                 }
             ],

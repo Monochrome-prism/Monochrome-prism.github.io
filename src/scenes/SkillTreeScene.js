@@ -90,14 +90,8 @@ export default class SkillTreeScene extends Phaser.Scene {
             fontFamily: "Courier New"
         });
 
-        // Current bonus text (dynamic)
-        const bonusText = this.add.text(200, y + 75,
-            this.getBonusText(skillName, level), {
-            fontSize: "14px",
-            fill: "#00ff88",
-            fontFamily: "Courier New"
-        });
-        this[`${skillName}BonusText`] = bonusText;
+        // FIX: Removed current bonus text display per user request
+        // The description alone is sufficient
 
         // Level indicator with progress circles
         const levelsX = 520;
@@ -114,8 +108,8 @@ export default class SkillTreeScene extends Phaser.Scene {
             }
         }
 
-        // Level text
-        const levelText = this.add.text(levelsX + 60, y + 35,
+        // Level text - FIX: Moved left to avoid overlapping with circles
+        const levelText = this.add.text(levelsX + 45, y + 35,
             `${level}/5`, {
             fontSize: "18px",
             fill: "#ffffff",
@@ -244,9 +238,6 @@ export default class SkillTreeScene extends Phaser.Scene {
         // Update each skill
         ['health', 'damage', 'speed'].forEach(skillName => {
             const level = data.skillTree.skills[skillName];
-
-            // Update bonus text
-            this[`${skillName}BonusText`].setText(this.getBonusText(skillName, level));
 
             // Update level text
             this[`${skillName}LevelText`].setText(`${level}/5`);
