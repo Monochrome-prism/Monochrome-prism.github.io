@@ -1,6 +1,6 @@
 # Branded For Death: Magic Affinity - Game Design Document
 
-**Version:** 3.3.0
+**Version:** 3.3.1
 **Last Updated:** November 14, 2025
 **Status:** Complete Phase 3 - Meta-Progression with Stackable Upgrades
 
@@ -121,7 +121,12 @@ Collect XP → Level Up → Choose Upgrade → Repeat → Death → View Stats �
 ### Difficulty Scaling
 - **Wave Progression:** Boss every 5 waves (5, 10, 15, 20...)
 - **Enemy Scaling:** +5 HP, +1 Damage per wave (Speed is STATIC - no scaling)
-- **Enemy Variety:** Slimes (Wave 1+), Goblins (Wave 4+), Tanks/Bombers (Wave 7+), Bosses (Wave 5, 10, 15...)
+- **Enemy Variety:**
+  - Wave 1-2: Slimes (Wave 2 guarantees 1 goblin)
+  - Wave 3: 50% Slimes, 50% Goblins (early difficulty spike)
+  - Wave 4+: Goblins unlocked
+  - Wave 7+: Tanks and Bombers unlocked
+  - Wave 5, 10, 15...: Boss waves
 
 ---
 
@@ -131,15 +136,17 @@ Collect XP → Level Up → Choose Upgrade → Repeat → Death → View Stats �
 The player character is a mysterious man in a suit, complete with top hat and sunglasses. His appearance adapts to the chosen element, with his attire changing color to match his magical affinity.
 
 **Visual Design:**
-- **Top Hat:** Element-colored crown with darker brim (0.8x brightness)
+- **Top Hat:** Double-height element-colored crown (16px) with darker brim (0.8x brightness)
 - **Sunglasses:** Always black (curved lenses)
 - **Suit Jacket:** Element-colored trapezoid shape (wider shoulders, narrower waist)
-- **Collar/Lapels:** Darker element color accent
+- **Collar/Lapels:** Darker element color accent (0.6x brightness)
+- **Buttons:** 3 small circle buttons down center (0.6x brightness)
 - **Arms & Legs:** Element-colored
+- **Shoes:** Rectangular, darker element color (0.4x brightness)
 - **Skin/Hands:** Pale beige (0xFFE4C4)
 - **Pose:** One arm at side, one arm raised (waving/gesturing)
 - **Hitbox:** 15px radius circle
-- **Total Height:** ~45px
+- **Total Height:** ~53px
 
 ### Base Stats
 | Stat | Value | Notes |
@@ -432,14 +439,24 @@ At level 1, choose one of 10 elemental types. Each element has:
 | XP Value | 113 | 113 |
 | Score Value | 500 | 500 |
 | Color | Dark red demon | - |
-| Special | Laser attack every 3s | Health bar at top |
+| Special | Scaling laser attack every 3s | Health bar at top |
 | Size | 2x normal enemies | - |
 
+**Boss Laser Scaling:**
+- Laser count increases with each boss: `1 + Math.floor(wave / 5)`
+- First laser always aims at player, additional lasers fire in random directions
+- All lasers fire simultaneously
+- **Wave 5** (1st boss): 2 lasers (1 aimed + 1 random)
+- **Wave 10** (2nd boss): 3 lasers (1 aimed + 2 random)
+- **Wave 15** (3rd boss): 4 lasers (1 aimed + 3 random)
+- **Wave 20** (4th boss): 5 lasers (1 aimed + 4 random)
+- **Wave 25+**: Continues scaling infinitely
+
 **Boss Stats by Wave:**
-- Wave 5: 700 HP, 40 Speed, 25/25 Damage
-- Wave 10: 900 HP, 45 Speed, 30/30 Damage
-- Wave 15: 1100 HP, 50 Speed, 35/35 Damage
-- Wave 20: 1300 HP, 55 Speed, 40/40 Damage
+- Wave 5: 700 HP, 40 Speed, 25/25 Damage, 2 Lasers
+- Wave 10: 900 HP, 45 Speed, 30/30 Damage, 3 Lasers
+- Wave 15: 1100 HP, 50 Speed, 35/35 Damage, 4 Lasers
+- Wave 20: 1300 HP, 55 Speed, 40/40 Damage, 5 Lasers
 
 ---
 
@@ -765,7 +782,7 @@ Each element has a dedicated achievement for reaching Wave 11.
 - **Background:** Tiled grass with seasonal variations
 
 ### Pixel Art Specifications
-- Character sprites: ~45px tall (procedural graphics)
+- Character sprites: ~53px tall (procedural graphics)
 - Enemy sprites: 16x16 pixels
 - Projectiles: 8x12 pixels
 - XP Orbs: 8x8 pixels

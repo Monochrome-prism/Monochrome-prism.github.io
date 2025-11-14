@@ -133,9 +133,9 @@ export class EnemySystem {
         } else if (currentWave === 2) {
             // Wave 2: Mostly slimes but guarantee 1 goblin
             enemyType = this.waveSystem.getEnemiesSpawned() === 0 ? 1 : 0; // First enemy is goblin, rest are slimes
-        } else if (currentWave < 4) {
-            // Wave 3: Only slimes
-            enemyType = 0;
+        } else if (currentWave === 3) {
+            // Wave 3: 50% Goblins, 50% Slimes (early difficulty spike)
+            enemyType = rand < 0.5 ? 0 : 1;
         } else if (currentWave === 4) {
             // Wave 4: Slimes, Goblins, and guarantee 1 Tank
             const enemiesSpawned = this.waveSystem.getEnemiesSpawned();
@@ -286,20 +286,25 @@ export class EnemySystem {
     }
 
     /**
-     * Boss laser attack - fires two lasers (one at player, one random)
+     * Boss laser attack - scales with wave number (Wave 5: 2 lasers, Wave 10: 3 lasers, etc.)
      * @param {import('../types/game-types.js').Enemy} boss - Boss enemy
      * @param {Function} gameOverCallback - Callback when player dies
      * @param {Function} showDamageCallback - Callback to show damage
      * @returns {void}
      */
     bossLaserAttack(boss, gameOverCallback, showDamageCallback) {
-        // Laser 1: Aimed at player
+        const currentWave = this.waveSystem.getCurrentWave();
+        const laserCount = 1 + Math.floor(currentWave / 5); // Wave 5: 2, Wave 10: 3, Wave 15: 4, etc.
+
+        // First laser: Always aimed at player
         this.fireBossLaser(boss, this.player.x, this.player.y, gameOverCallback, showDamageCallback);
 
-        // Laser 2: Random direction
-        const randomX = Phaser.Math.Between(100, 700);
-        const randomY = Phaser.Math.Between(100, 500);
-        this.fireBossLaser(boss, randomX, randomY, gameOverCallback, showDamageCallback);
+        // Additional lasers: Random directions
+        for (let i = 1; i < laserCount; i++) {
+            const randomX = Phaser.Math.Between(100, 700);
+            const randomY = Phaser.Math.Between(100, 500);
+            this.fireBossLaser(boss, randomX, randomY, gameOverCallback, showDamageCallback);
+        }
 
         soundFX.play("shoot");
     }
