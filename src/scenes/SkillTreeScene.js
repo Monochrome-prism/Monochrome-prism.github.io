@@ -93,26 +93,12 @@ export default class SkillTreeScene extends Phaser.Scene {
         // FIX: Removed current bonus text display per user request
         // The description alone is sufficient
 
-        // Level indicator with progress circles
+        // Level text - FIX: Removed circle display, just show level text
         const levelsX = 520;
-        for (let i = 0; i < 5; i++) {
-            const circle = this.add.graphics();
-            const filled = i < level;
-
-            if (filled) {
-                circle.fillStyle(0xffd700, 1);
-                circle.fillCircle(levelsX + i * 25, y + 35, 8);
-            } else {
-                circle.lineStyle(2, 0x4a4a5a, 1);
-                circle.strokeCircle(levelsX + i * 25, y + 35, 8);
-            }
-        }
-
-        // Level text - FIX: Moved left to avoid overlapping with circles
-        const levelText = this.add.text(levelsX + 45, y + 35,
-            `${level}/5`, {
-            fontSize: "18px",
-            fill: "#ffffff",
+        const levelText = this.add.text(levelsX + 30, y + 35,
+            `${level} / 5`, {
+            fontSize: "20px",
+            fill: "#ffd700",
             fontFamily: "Courier New",
             fontStyle: "bold"
         }).setOrigin(0, 0.5);
@@ -240,38 +226,22 @@ export default class SkillTreeScene extends Phaser.Scene {
             const level = data.skillTree.skills[skillName];
 
             // Update level text
-            this[`${skillName}LevelText`].setText(`${level}/5`);
+            this[`${skillName}LevelText`].setText(`${level} / 5`);
 
             // Update button style
             this.updateButtonStyle(skillName);
-
-            // Redraw level circles
-            this.updateLevelCircles(skillName, level);
         });
     }
 
     /**
      * Update level indicator circles
+     * @deprecated - Circles removed in v3.2.2, now just show level text
      * @param {string} skillName - Skill name
      * @param {number} level - Current level
      */
     updateLevelCircles(skillName, level) {
-        const yPos = skillName === 'health' ? 180 : skillName === 'damage' ? 300 : 420;
-        const levelsX = 520;
-
-        // Clear old circles and redraw
-        for (let i = 0; i < 5; i++) {
-            const circle = this.add.graphics();
-            const filled = i < level;
-
-            if (filled) {
-                circle.fillStyle(0xffd700, 1);
-                circle.fillCircle(levelsX + i * 25, yPos + 35, 8);
-            } else {
-                circle.lineStyle(2, 0x4a4a5a, 1);
-                circle.strokeCircle(levelsX + i * 25, yPos + 35, 8);
-            }
-        }
+        // Removed circle display - now just shows level text (e.g., "3 / 5")
+        // This function is kept for backwards compatibility but does nothing
     }
 
     /**

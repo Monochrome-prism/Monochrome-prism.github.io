@@ -1,6 +1,6 @@
 # Magic Affinity - Game Design Document
 
-**Version:** 3.2.1
+**Version:** 3.2.2
 **Last Updated:** November 14, 2025
 **Status:** Complete Phase 3 - Meta-Progression with Stackable Upgrades
 
@@ -235,13 +235,15 @@ At level 1, choose one of 10 elemental types. Each element has:
 **Base Damage Bonus:** +10 damage (30 total)
 **Color:** Light cyan (#E0FFFF)
 **Orbs:** 0 (removed for boomerang system)
-**Attack Pattern:** Throwing boomerangs that return (1 per second, max 1 simultaneous base)
+**Attack Pattern:** Throwing boomerangs that return (1 per second, max 3 simultaneous base)
+- 1st boomerang targets nearest enemy
+- 2nd and 3rd boomerangs shoot random directions
 
 **Upgrades:**
 1. **Gale Force** - +50% knockback distance
 2. **Zephyr** - +50% knockback chance (5%→7.5%)
 3. **Cyclone** - Knockback affects 3 enemies (closest)
-4. **Hurricane** - +1 additional boomerang (stackable: 1→2→3→4...)
+4. **Hurricane** - +1 additional boomerang (stackable: 3→4→5→6...)
 
 ---
 
