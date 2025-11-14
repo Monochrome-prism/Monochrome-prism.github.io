@@ -7,6 +7,93 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.3.1] - 2025-11-14
+
+### Changed - PLAYER SPRITE ENHANCEMENTS
+- **Top Hat:** Doubled crown height (8px → 16px tall)
+  - Crown starts at y=-30 (was y=-22)
+  - Brim remains at y=-14
+  - Total character height increased from ~45px to ~53px
+  - Location: DrawingHelpers.js line 49
+
+- **Suit Details:**
+  - **Buttons:** Added 3 small circle buttons (1px radius) down center of jacket
+    - Top button: y=0
+    - Middle button: y=3
+    - Bottom button: y=6
+    - Color: 0.6x element brightness (darker than jacket)
+    - Location: DrawingHelpers.js lines 85-88
+
+  - **Lapels:** Updated from 0.8x to 0.6x brightness for better contrast
+    - Created new `suitDetailColor` variable at 0.6x brightness
+    - Location: DrawingHelpers.js lines 34-38, 80-82
+
+  - **Shoes:** Added rectangular shoes at bottom of legs
+    - Color: 0.4x element brightness (darkest detail)
+    - Size: 3x2px rectangles
+    - Position: y=14-16 (bottom of character)
+    - Legs shortened from 8px to 6px to make room
+    - Location: DrawingHelpers.js lines 109-118
+
+### Changed - WAVE 3 DIFFICULTY SPIKE
+- **Wave 3 Composition:** Changed from 100% Slimes to 50% Goblins / 50% Slimes
+  - Creates early difficulty spike (Goblins have 67% more HP and 17% more speed)
+  - Prepares players for enemy variety in wave 4+
+  - Location: EnemySystem.js lines 136-138
+
+### Changed - BOSS LASER SCALING
+- **Dynamic Laser Count:** Boss lasers now scale with wave number
+  - Formula: `laserCount = 1 + Math.floor(currentWave / 5)`
+  - Wave 5 (1st boss): 2 lasers (1 aimed + 1 random)
+  - Wave 10 (2nd boss): 3 lasers (1 aimed + 2 random)
+  - Wave 15 (3rd boss): 4 lasers (1 aimed + 3 random)
+  - Wave 20 (4th boss): 5 lasers (1 aimed + 4 random)
+  - Continues scaling infinitely
+  - First laser always aims at player (guaranteed threat)
+  - Additional lasers fire in random directions
+  - All lasers fire simultaneously
+  - Location: EnemySystem.js lines 295-310
+
+### Technical
+- **DrawingHelpers.js:**
+  - Added three color calculations: 0.8x (brim), 0.6x (details), 0.4x (shoes)
+  - Updated variable naming: `r` → `r8`, `g` → `g8`, `b` → `b8` for clarity
+  - Lines 28-44: Color calculation updates
+  - Lines 46-53: Top hat doubled height
+  - Lines 79-88: Suit details (lapels + buttons)
+  - Lines 107-118: Legs shortened + shoes added
+
+- **EnemySystem.js:**
+  - Line 136-138: Wave 3 composition updated
+  - Lines 289-310: Boss laser scaling implementation
+  - Updated JSDoc comment for bossLaserAttack
+
+### Documentation
+- **MagicAffinityBible.md:**
+  - Version bumped: 3.3.0 → 3.3.1 (line 3)
+  - Updated character visual design specs (lines 133-144):
+    - Top hat: mentioned double-height (16px)
+    - Lapels: noted 0.6x brightness
+    - Buttons: added to spec (0.6x brightness)
+    - Shoes: added to spec (0.4x brightness)
+    - Total height: ~45px → ~53px
+  - Updated difficulty scaling section (lines 121-129):
+    - Added wave 3 composition details
+  - Updated boss section (lines 442-459):
+    - Added "Boss Laser Scaling" subsection
+    - Updated boss stats table to include laser counts
+  - Updated pixel art specs: ~45px → ~53px (line 785)
+
+- **CHANGELOG.md:**
+  - Version bumped: 3.3.0 → 3.3.1
+
+- **CharacterSelectScene.js:**
+  - Version number: v3.3.0 → v3.3.1 (line 101)
+
+- Version bumped: 3.3.0 → 3.3.1
+
+---
+
 ## [3.3.0] - 2025-11-14
 
 ### Changed - VISUAL REDESIGN & REBRANDING

@@ -26,15 +26,27 @@ export function drawSuitedMan(player) {
     const blackColor = 0x000000; // Black sunglasses (always black!)
 
     // Calculate darker brim color (0.8x brightness)
-    const r = ((elementColor >> 16) & 0xFF) * 0.8;
-    const g = ((elementColor >> 8) & 0xFF) * 0.8;
-    const b = (elementColor & 0xFF) * 0.8;
-    const hatBrimColor = (Math.floor(r) << 16) | (Math.floor(g) << 8) | Math.floor(b);
+    const r8 = ((elementColor >> 16) & 0xFF) * 0.8;
+    const g8 = ((elementColor >> 8) & 0xFF) * 0.8;
+    const b8 = (elementColor & 0xFF) * 0.8;
+    const hatBrimColor = (Math.floor(r8) << 16) | (Math.floor(g8) << 8) | Math.floor(b8);
 
-    // === TOP HAT (element color) ===
-    // Hat crown (tall part - full brightness)
+    // Calculate suit detail color (0.6x brightness for buttons and lapels)
+    const r6 = ((elementColor >> 16) & 0xFF) * 0.6;
+    const g6 = ((elementColor >> 8) & 0xFF) * 0.6;
+    const b6 = (elementColor & 0xFF) * 0.6;
+    const suitDetailColor = (Math.floor(r6) << 16) | (Math.floor(g6) << 8) | Math.floor(b6);
+
+    // Calculate shoe color (0.4x brightness)
+    const r4 = ((elementColor >> 16) & 0xFF) * 0.4;
+    const g4 = ((elementColor >> 8) & 0xFF) * 0.4;
+    const b4 = (elementColor & 0xFF) * 0.4;
+    const shoeColor = (Math.floor(r4) << 16) | (Math.floor(g4) << 8) | Math.floor(b4);
+
+    // === TOP HAT (element color, DOUBLE HEIGHT) ===
+    // Hat crown (tall part - full brightness, doubled from 8 to 16)
     player.fillStyle(elementColor, 1);
-    player.fillRect(-5, -22, 10, 8);
+    player.fillRect(-5, -30, 10, 16);
 
     // Hat brim (wide part - darker)
     player.fillStyle(hatBrimColor, 1);
@@ -64,10 +76,16 @@ export function drawSuitedMan(player) {
     player.closePath();
     player.fillPath();
 
-    // Collar/lapels (darker accent)
-    player.fillStyle(hatBrimColor, 1);
+    // Collar/lapels (0.6x darker for detail)
+    player.fillStyle(suitDetailColor, 1);
     player.fillTriangle(-6, -2, -3, -2, -4, 2);
     player.fillTriangle(6, -2, 3, -2, 4, 2);
+
+    // Buttons (0.6x darker, 3 small circles down center)
+    player.fillStyle(suitDetailColor, 1);
+    player.fillCircle(0, 0, 1);  // Top button
+    player.fillCircle(0, 3, 1);  // Middle button
+    player.fillCircle(0, 6, 1);  // Bottom button
 
     // === ARMS (element color) ===
     // Right arm (at side)
@@ -88,9 +106,16 @@ export function drawSuitedMan(player) {
     // === LEGS (element color) ===
     player.fillStyle(elementColor, 1);
     // Left leg
-    player.fillRect(-3, 8, 3, 8);
+    player.fillRect(-3, 8, 3, 6);  // Shortened from 8 to 6 to make room for shoes
     // Right leg
-    player.fillRect(0, 8, 3, 8);
+    player.fillRect(0, 8, 3, 6);   // Shortened from 8 to 6 to make room for shoes
+
+    // === SHOES (0.4x darker, rectangular) ===
+    player.fillStyle(shoeColor, 1);
+    // Left shoe
+    player.fillRect(-3, 14, 3, 2);
+    // Right shoe
+    player.fillRect(0, 14, 3, 2);
 }
 
 /**
