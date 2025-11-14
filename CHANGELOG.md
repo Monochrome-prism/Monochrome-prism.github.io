@@ -1,0 +1,1323 @@
+# Changelog - Magic Affinity
+
+All notable changes to Magic Affinity will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [3.1.3] - 2025-11-13
+
+### Fixed - CRITICAL BUG FIXES
+- **Ice Spike Respawn Bug**
+  - Winter map ice spike hazards now properly respawn between runs
+  - Root cause: Hazards array not cleaned up between game sessions
+  - Solution: Added hazard cleanup in `spawnHazards()` before creating new ones
+  - Also added cleanup in `gameOver()` to prevent memory leaks
+  - Locations: GameScene.js lines 2684-2692, 4160-4166
+
+- **Boss Laser After Death Bug**
+  - Boss laser attacks no longer fire after boss health reaches 0
+  - Added `enemy.health > 0` check before laser attack execution
+  - Prevents ghost attacks from dead bosses
+  - Location: GameScene.js line 3037
+
+- **Element Master Achievements Not Unlocking (CRITICAL)**
+  - Fixed achievement migration system deleting new element master achievements for existing players
+  - Root cause: Spread operator order in `migrateData()` overwrote defaults with old data
+  - Solution: Properly merge each achievement individually (defaults first, then overlay old unlock status)
+  - This was preventing ALL element master achievements from working for existing players
+  - Version bumped from 3.1.0 to 3.1.3 to trigger migration for all users
+  - Locations: PersistenceSystem.js lines 9, 271-296
+
+- **Bomber Teleport During Pause Bug**
+  - Bombers can no longer teleport while level up menu is open
+  - Added double-check of pause state before executing teleport
+  - Prevents race condition where pause happens between check and teleport
+  - Location: GameScene.js lines 3063-3078
+
+- **Right Click Movement Lock Bug**
+  - Right-clicking while moving no longer locks player direction
+  - Browser context menu was interfering with keyboard input
+  - Solution: Disabled context menu via `this.input.mouse.disableContextMenu()`
+  - Location: GameScene.js line 191
+
+### Changed - BALANCE UPDATES
+- **Enemy Speed Scaling Removed**
+  - All enemy speeds are now STATIC (no speed increase per wave)
+  - Late-game enemies no longer become impossibly fast
+  - New static speeds:
+    - Slime: 40 (was 40 + wave*2)
+    - Goblin: 60 (was 60 + wave*3)
+    - Tank: 20 (was 20 + wave)
+    - Bomber: 45 (was 45 + wave*2)
+  - HP and damage scaling unchanged (still increase per wave)
+  - Locations: EnemySystem.js lines 165, 173, 181, 190
+
+- **Armor Boost Pick Limit**
+  - Universal upgrade "Armor Boost" can now only be picked twice (max 2x)
+  - Prevents infinite damage reduction stacking
+  - Maximum: 50% damage reduction (25% × 2)
+  - Upgrade is completely filtered from options after 2nd pick
+  - Description updated to show "(max 2x)"
+  - Locations: UpgradeSystem.js lines 887-891, 907-910
+
+- **Boss XP Reward Increased**
+  - Boss XP increased by 50% (75 → 113)
+  - Boss kills now feel more rewarding for the difficulty
+  - Better progression pacing for players who reach boss waves
+  - Location: EnemySystem.js line 50
+
+### Technical - DOCUMENTATION & TYPE SAFETY
+- **JSDoc Type System Updates**
+  - Added `armorBoostCount` property to Player typedef
+  - Tracks number of times Armor Boost upgrade has been taken
+  - Location: game-types.js line 48
+
+- **CLAUDE.md Critical Note Added**
+  - Added warning section about keeping JSDoc documentation updated
+  - Emphasizes that ALL code changes must include corresponding JSDoc updates
+  - Prevents future bugs from outdated type definitions
+  - Location: CLAUDE.md lines 90-96
+
+- **MagicAffinityBible.md Updates**
+  - Version bumped to 3.1.3
+  - Updated all enemy speed formulas to show static values
+  - Updated Boss XP value (200 → 113)
+  - Updated Armor Boost description to mention "(max 2x)"
+  - Updated difficulty scaling notes to clarify speed is static
+
+### Performance
+- No performance impact from these changes
+- Ice spike cleanup actually improves memory usage
+- Achievement migration runs once on version change
+
+---
+
+## [3.1.2] - 2025-11-12
+
+### Added - STACKABLE PERCENTAGE UPGRADES
+- **8 Percentage Upgrades Converted to Infinite Stacking**
+  - All percentage-based upgrades now show dynamic descriptions with current→next values
+  - Players can take the same upgrade multiple times for unlimited scaling
+  - Late-game progression significantly improved with compounding upgrades
+
+**Stackable Upgrades by Element:**
+1. **Flame - Inferno Blast:** +2 burn damage per tick (stackable: 3→5→7→9...)
+2. **Water - Permafrost:** +5% freeze chance (stackable: 50%→55%→60%→65%...)
+3. **Water - Jet Stream:** +25% water beam range (already stackable from v3.1.1)
+4. **Electric - Overload:** +10% paralyze chance (stackable: 30%→40%→50%→60%...)
+5. **Gravity - Gravitational Pull:** +10% slow effect (stackable: 40%→50%→60%→70%...)
+6. **Celestial - Starfall:** +3% charm chance (stackable: 5%→8%→11%→14%...)
+7. **Radiant - Brilliant Flash:** +10% blind chance (stackable: 20%→30%→40%→50%...)
+8. **Shadow - Lifesteal:** +10% lifesteal (stackable: 0%→10%→20%→30%...)
+9. **Shadow - Dark Embrace:** +5% fear chance (stackable: 10%→15%→20%→25%...)
+
+### Changed - UPGRADE DESCRIPTIONS
+- **Dynamic Upgrade Descriptions:** All stackable upgrades now show real-time calculations
+  - Example: "Permafrost +5% freeze chance (50% → 55%)" on first take
+  - Example: "Permafrost +5% freeze chance (55% → 60%)" on second take
+  - Example: "Inferno Blast +2 burn damage (3 → 5 damage)" on first take
+- **Upgrade System Refactor:** Added `getDescription()` function support for dynamic text
+
+### Fixed - DOCUMENTATION CORRECTIONS
+- **MagicAffinityBible.md:** Corrected upgrade descriptions to match actual implementation
+  - Electric: Overload changed from "+2 damage to paralyzed" to "+10% paralyze chance"
+  - Radiant: Brilliant Flash base chance corrected from 15% to 20%
+  - Shadow: "Nightmare" upgrade replaced with "Lifesteal" (matches code)
+  - Flame: Firestorm duration corrected from "+1 second" to "+2 seconds"
+  - Celestial: Astral Chains duration corrected from "+2 seconds" to "+1 second"
+
+### Technical
+- **UpgradeSystem.js:**
+  - 8 upgrades converted to use `upgradeKey`, `getDescription()`, and `upgradeStacks`
+  - All stackable upgrades now use BASE_VALUES for consistent calculations
+  - Dynamic description generation with current→next value display
+- **GameScene.js:** No changes needed (bonus application already supports stacking)
+- **MagicAffinityBible.md:** Updated to v3.1.2 with corrected upgrade descriptions
+
+---
+
+## [3.1.1] - 2025-11-12
+
+### Fixed - BUG FIXES
+- **Gravity Planet Orb:** Fixed bug where upgrade spawned +3 orbs instead of +1
+  - `createWizardOrbs()` now clears existing orbs before creating new ones
+  - Taking Planet Orb upgrade correctly increases count from 3→4→5 etc.
+- **Healing Text Color:** Changed all healing numbers from red to green (0x00ff88)
+  - Wave completion heal (+25% HP) now shows green healing number
+  - Lifesteal already used green, now consistent across all healing
+- **Shadow Clone AI:** Implemented target locking to fix indecisive behavior
+  - Clones lock onto targets until they die or move out of range
+  - Eliminates target switching when multiple enemies are nearby
+
+### Changed - BALANCE UPDATES
+- **Terra - Spawn Duration:** +50% longer spawn phase (5s → 7.5s)
+  - Blocks deal damage for 50% longer, improving late-game viability
+  - Total duration: 15s → 17.5s
+- **Water - Jet Stream:** Replaced "Tidal Wave" with stackable range upgrade
+  - +25% water beam range per stack (200→250→312→390px)
+  - Infinite stacking for late-game scaling
+
+### Added - STACKABLE UPGRADE SYSTEM
+- **Infrastructure:** Added support for infinitely stackable percentage upgrades
+  - `BASE_VALUES` constant for centralized stat management
+  - `player.upgradeStacks` tracks stacks per upgrade
+  - Dynamic descriptions show current→next values
+  - Template ready for converting all percentage upgrades
+
+### Technical
+- GameScene.js: Orb cleanup, healing colors, shadow AI, terra duration, water range
+- UpgradeSystem.js: BASE_VALUES constant, Jet Stream upgrade, dynamic descriptions
+
+---
+
+## [3.1.0] - 2025-11-12
+
+### Added - ELEMENT MASTERS & BALANCE UPDATE
+- **10 New Element Master Achievements**
+  - One achievement per element for reaching Wave 11
+  - Flame Master 🔥, Water Master 💧, Electric Master ⚡, Nature Master 🌿
+  - Wind Master 💨, Terra Master 🪨, Gravity Master 🌌, Celestial Master ✨
+  - Radiant Master ☀️, Shadow Master 🌑
+  - Each awards +1 skill point (10 total new skill points available)
+  - Progress tracking shows best wave reached per element
+  - Total achievements increased from 4 to 14
+
+- **Scrollable Achievement List**
+  - Mouse wheel scrolling support for viewing all achievements
+  - Touch/drag scrolling for mobile devices
+  - Fixed header and footer for better navigation
+  - Visual scroll indicators (arrows + scrollbar)
+  - Dynamic content height based on achievement count
+
+### Changed - ELEMENT BALANCE
+- **Flame Element (Buffed)**
+  - **NEW:** Dual flamethrower attack (shoots both forward AND backward simultaneously)
+  - Attack rate increased: 0.75s → 0.5s (33% faster)
+  - Base damage adjusted: 20 → 15 (balanced for dual flames)
+  - Effective DPS increase due to hitting enemies from multiple angles
+  - Better survivability with 360-degree coverage while moving
+
+- **Shadow Element (Buffed)**
+  - Shadow clone damage rate increased: 1.33s → 0.75s per clone (77% faster)
+  - Each clone attacks independently on its own timer
+  - Significant DPS increase with Void Clone upgrade (2 clones)
+  - Improved scaling for late-game waves
+
+- **Gravity Element (Upgrade Rework)**
+  - **REMOVED:** Singularity upgrade (confusion duration bonus)
+  - **NEW:** Planet Orb upgrade - Gain +1 gravity orb (stackable)
+  - Allows scaling orb count from 3 to 4, 5, 6+ orbs
+  - Same orbit pattern as existing orbs
+  - Increases both damage output and status effect coverage
+
+### Changed - META-PROGRESSION
+- **Skill Point Economy Expansion**
+  - Total skill points available: 5 → 15 (1 free + 14 from achievements)
+  - Enough points to max all 3 skills (15 points for 3x5 levels)
+  - Players can now achieve full build potential
+  - Encourages long-term progression across all elements
+
+- **Achievement System**
+  - Total achievements: 4 → 14 (250% increase)
+  - Achievement scene dynamically loads all achievements
+  - Progress tracking expanded to handle element-specific achievements
+  - `getAchievementProgress()` supports element master achievements
+  - Version updated to 3.1.0 in PersistenceSystem
+
+### Technical Changes
+- **GameScene.js**
+  - `updateFlamethrowerAttack()`: Refactored to fire dual flame cones
+  - Added `hitEnemies` Set to prevent double-damage from overlapping cones
+  - Shadow clone damage interval: 1333ms → 750ms (line 1938)
+
+- **UpgradeSystem.js**
+  - Added Flame to -5 damage modifier group (alongside Nature)
+  - Replaced "Singularity" with "Planet Orb" in gravity upgrades
+  - Planet Orb increments `player.orbCount` and recreates orbs
+
+- **PersistenceSystem.js**
+  - Version bumped: 3.0.0 → 3.1.0
+  - Added 10 element master achievement definitions
+  - Each tracks `bestWave` and targets Wave 11
+
+- **ProgressionSystem.js**
+  - `checkAchievements()`: Added element master checking logic
+  - Dynamically checks `${element}Master` achievement IDs
+  - Tracks best wave per element even if not unlocked yet
+  - `getAchievementProgress()`: Added default case for element masters
+
+- **AchievementScene.js**
+  - Dynamically loads all achievements via `Object.keys(data.achievements)`
+  - Camera bounds set based on content height
+  - Scrolling system with wheel and touch support
+  - Fixed UI elements (title, count, back button) use `.setScrollFactor(0)`
+  - `getProgressText()`: Handles element master progress display
+
+### Documentation
+- **MagicAffinityBible.md**
+  - Version updated to 3.1.0
+  - Flame element: Updated attack pattern, rate, and damage
+  - Shadow element: Updated clone damage timing
+  - Gravity element: Replaced Singularity with Planet Orb
+  - Meta-Progression: Updated skill points (5 → 15)
+  - Meta-Progression: Added 10 element master achievements
+  - Added scrollable list feature to achievement documentation
+
+### Performance
+- No performance impact from scrolling system (only activates if content exceeds viewport)
+- Element master checks use O(1) lookup via dynamic achievement IDs
+- Flame dual attack uses Set to prevent O(n²) double-damage checks
+
+---
+
+## [3.0.0] - 2025-11-12
+
+### Added - META-PROGRESSION SYSTEM (MAJOR UPDATE)
+- **Persistent Progression via LocalStorage**
+  - Player progress saves between browser sessions
+  - Graceful fallback if localStorage unavailable
+  - Data validation prevents corruption
+  - Version migration support for future updates
+  - Storage key: `magicAffinityProgression` (~10KB)
+
+- **Achievement System (4 achievements, expandable to 20)**
+  - **First Blood:** Kill 100 enemies (lifetime tracking)
+  - **Untouchable:** Reach Wave 6 without taking damage
+  - **Element Master:** Reach Wave 7 with all 10 elements
+  - **Speed Demon:** Reach Wave 10 in under 10 minutes
+  - In-game notification popups with particle effects
+  - Progress tracking with visual progress bars
+  - Achievement unlock dates displayed
+  - Each achievement awards +1 skill point
+  - New AchievementScene accessible from main menu
+
+- **Skill Tree System**
+  - 3 permanent stat boosts: Health (+5% per level), Damage (+5% per level), Speed (+5% per level)
+  - Max 5 levels per skill (+25% maximum bonus)
+  - Players start with 1 free skill point
+  - Earn 1 skill point per achievement unlocked (max 5 total)
+  - Free respec option to reset skill tree
+  - Skill bonuses apply to all future runs
+  - New SkillTreeScene accessible from main menu
+
+- **New Systems Created**
+  - `PersistenceSystem.js`: LocalStorage save/load with validation
+  - `ProgressionSystem.js`: Achievement tracking and skill logic
+  - `NotificationHelper.js`: Achievement unlock popup animations
+
+- **Main Menu Updates**
+  - New "🏆 Achievements" button (orange theme)
+  - New "🌳 Skill Tree" button (green theme)
+  - Reorganized button layout (4 buttons total)
+  - Skill points available indicator with pulse animation
+  - Updated button positioning: Start (280), Achievements (355), Skill Tree (420), Settings (485)
+
+### Changed
+- **Player Starting Stats** (now affected by skill tree bonuses)
+  - Base stats: 50 HP, 20 damage, 140 speed
+  - With max skills: 62 HP (+25%), 25 damage (+25%), 175 speed (+25%)
+  - Bonuses apply on game start before any element selection
+
+- **Game Over Flow**
+  - Achievement checks run automatically after death
+  - Unlock notifications displayed with particle effects
+  - Progress automatically saved to LocalStorage
+  - Displays new achievements unlocked this run
+
+- **Main Menu Layout**
+  - Title moved up slightly to accommodate skill points indicator
+  - High score display moved down to position 560
+  - All buttons now have emoji icons for better visual distinction
+
+- **Achievement Tracking During Gameplay**
+  - Damage taken tracked per run for Untouchable
+  - Wave reached tracked continuously
+  - Element selection tracked for Element Master
+  - Level reached tracked for potential future achievements
+
+### Fixed
+- **Upgrade Screen Text Colors**
+  - Element names now white instead of element color (better readability on dark backgrounds)
+  - Upgrade names now white instead of gold (consistent with element names)
+  - Fixes visibility issues with dark-colored elements like Shadow and Terra
+
+### Technical Details
+- LocalStorage size: ~10KB (well under 5-10MB browser limits)
+- Data structure includes version number for migration
+- Corrupted data automatically resets to defaults
+- Skill point economy: 1 free + 4 from achievements = 5 total
+- Achievement progress tracked in `gameState` during gameplay
+- Progression saved on every game over
+- New scenes registered in main.js scene array
+- Import `ProgressionSystem` in GameScene and GameOverScene
+- Import `NotificationHelper` in GameOverScene
+
+### Performance
+- No performance impact from LocalStorage operations
+- Achievement checks run once per game over (negligible cost)
+- Skill bonus calculations done once at game start
+- Notification animations use existing tween system
+
+### Documentation
+- Updated `MagicAffinityBible.md` to v3.0.0
+  - Added comprehensive Meta-Progression System section
+  - Documented skill tree mechanics and bonuses
+  - Documented all 4 achievements with requirements
+  - Added persistence and storage information
+- Updated version status to "Phase 3 - Meta-Progression System"
+
+---
+
+## [2.3.6] - 2025-11-12
+
+### Changed
+- **Armor Boost Upgrade Rework**
+  - Changed from +3 Defense to 25% damage reduction from all sources
+  - Now stacks additively with Radiant Shield (10% reduction)
+  - Applies to enemy collision, hazards, and boss laser damage
+  - More intuitive and consistent defensive scaling
+
+- **Wave Heal Balance Adjustment**
+  - Changed from flat 10 HP to 25% of max HP
+  - Scales better with Health Boost upgrades
+  - Provides more meaningful healing in late game
+  - Early game: ~7-8 HP (30 base HP × 0.25)
+  - Mid game: ~12-15 HP with 1-2 Health Boosts
+  - Late game: ~20-25 HP with 3+ Health Boosts
+
+- **Combo Window Extension**
+  - Increased combo chain window from 2 seconds to 3 seconds
+  - Easier to maintain combos during intense combat
+  - Rewards aggressive playstyles more consistently
+  - Damage multiplier formula unchanged (1 + combo × 0.1)
+
+### Fixed
+- **Critical Strike Bug**
+  - Fixed critical strikes not working for Water, Electric, and Shadow clone attacks
+  - Root cause: These attacks bypassed `applyDamage()` function
+  - Water stream (line 1126), Electric chain (line 1194), Shadow clone (line 1916)
+  - All attacks now use `applyDamage()` for consistent crit checks
+  - Critical strikes now work for ALL damage sources (except DOTs)
+  - Shadow clone lifesteal also fixed as side effect
+
+- **Electric Element Transparency Bug**
+  - Fixed enemies staying semi-transparent after paralysis ends
+  - Root cause: No alpha restoration in paralyze cleanup code
+  - Solution: Added `enemy.setAlpha(1)` when paralyze effect expires
+  - Enemies now correctly return to full opacity (updateStatusEffects line 2555-2557)
+
+### Added
+- **Critical Strike Visual Effects**
+  - Particle burst on critical hit (8 particles in radial pattern)
+  - Yellow/orange/red particle colors for visual impact
+  - Larger damage number font (28px vs 20px normal)
+  - Thicker stroke (4px vs 3px) for better visibility
+  - "CRIT! {damage}" text format in yellow
+
+- **Element Icon in UI**
+  - Element emoji now displayed before "WIZARD" text
+  - Example: "🔥 WIZARD" for Flame element
+  - Updates dynamically when element is selected
+  - Improves visual clarity of current build
+
+### Documentation
+- **MagicAffinityBible.md Updates**
+  - Updated version to 2.3.6
+  - Added Combo System documentation (3s window, damage multipliers)
+  - Updated Universal Upgrades section (now 4 total, added Critical Strike and Armor Boost)
+  - Updated wave heal to 25% of max HP
+  - Fixed hazard damage values (6 damage/sec, Spring thorns 12 damage/sec)
+  - Added note about damage reduction affecting hazards
+
+---
+
+## [2.3.5] - 2025-11-12
+
+### Fixed
+- **CRITICAL: Wave 2 Stuck Bug**
+  - Fixed waves getting stuck at wave 2 (and other waves during level-up)
+  - Root cause: Enemy spawn callbacks checked `!this.scene.paused`
+  - During level-up, `paused = true` prevented spawns
+  - Timer repeat counter still decremented, exhausting all spawns
+  - Result: `enemiesSpawned` stayed at 0, wave completion never triggered
+  - Solution: Removed pause check from spawn callbacks
+  - Player already protected by `isLevelingUp` flag (v2.2.8)
+  - Enemies can spawn during level-up but can't damage player
+
+- **CRITICAL: Wave System Duplicate Completion Bug**
+  - Fixed waves sometimes calling `completeWave()` multiple times
+  - Root cause: Wave completion check ran every frame (~120 times during 2s delay)
+  - This caused multiple `completeWave()` calls, corrupting wave state
+  - Solution: Added `isWaveCompleting` flag to prevent duplicate completions
+  - Flag set to true when wave completes, reset to false when new wave starts
+  - Prevents wave counter increment bugs and multiple "Wave Complete" messages
+  - Fixes issue introduced in v2.3.0 wave decoupling refactor
+
+### Technical Details
+- Removed `!this.scene.paused` check from WaveSystem.js line 108 (boss wave spawns)
+- Removed `!this.scene.paused` check from WaveSystem.js line 121 (regular wave spawns)
+- Added `isWaveCompleting` flag in GameScene.create() at line 83
+- Added flag check in wave completion condition at line 3189
+- Reset flag in startWave() at line 2450
+- Wave completion now guaranteed to trigger exactly once per wave
+- All enemies now spawn even during level-up pause
+
+---
+
+## [2.3.4] - 2025-11-12
+
+### Added
+- **Combo System with 2-Second Chain Window**
+  - Chain kills within 2 seconds to build combo multiplier
+  - Linear multiplier formula: 1 + (combo × 0.1)
+    - Combo 5 = 1.5x XP/Score
+    - Combo 10 = 2x XP/Score
+    - Combo 25 = 3.5x XP/Score
+  - Combo counter displays above player sprite (15px font, half player size)
+  - Shows "Xx COMBO" format (e.g., "5x COMBO")
+  - Only visible when combo >= 2
+  - Follows player movement in real-time
+  - Flash animation when combo increases (scale pulse effect)
+  - Color changes based on milestones:
+    - Yellow (default) for combo 2-4
+    - Orange for combo 5-9
+    - Red for combo 10-24
+    - Purple for combo 25+
+  - Milestone sound effects at combos 5, 10, and 25
+  - Combo resets to 0 when player takes damage
+  - Red flash and fade-out animation on combo break
+
+### Verified
+- **Map Selection Probabilities**
+  - Confirmed all 4 seasons (spring, summer, fall, winter) have equal 25% probability
+  - Uses uniform distribution via Math.random() * seasons.length
+
+---
+
+## [2.3.3] - 2025-11-12
+
+### Added
+- **Stats Screen (ESC Key)**
+  - Press ESC to view mid-game statistics
+  - Pauses game while viewing
+  - Displays: time survived, damage dealt, enemies killed, current wave, score, upgrades list
+  - Can toggle with ESC key or clicking ESC button
+
+- **ESC Button (Top Left Corner)**
+  - Clickable "[ESC] Stats" button at position (20, 20)
+  - Green color (#00ff88) with cyan hover effect (#00ffff)
+  - Opens stats screen when clicked
+
+- **Settings Menu with Volume Controls**
+  - New SettingsScene accessible from main menu
+  - Interactive drag-and-drop volume sliders:
+    - Master Volume (0-100%)
+    - Music Volume (0-100%)
+    - SFX Volume (0-100%) - plays test sound on adjust
+  - Fullscreen toggle button (ON/OFF display)
+  - Back button to return to main menu
+  - Volume settings saved to gameState
+  - Real-time volume adjustments affect game audio
+
+- **Fullscreen Toggle Enhancement**
+  - Added to Settings menu with ON/OFF toggle
+  - Works across all scenes via Phaser scale manager
+  - Existing fullscreen button in CharacterSelectScene kept
+
+### Changed
+- **Color-Coded Damage Numbers**
+  - White (0xffffff): Normal damage from player attacks
+  - Yellow (0xffff00): Critical hits (unchanged)
+  - Orange (0xffa500): Status effect DOT (burn, poison, static field)
+  - Green (0x00ff00): Lifesteal healing (unchanged)
+  - Updated all element attack colors to white for consistency
+  - Changed burn, poison, and static field DOT to orange
+
+### Technical Details
+- Added volume properties to gameState.js (masterVolume, musicVolume, sfxVolume)
+- Modified SoundFX.js to use gameState volumes via getVolume()
+- Created SettingsScene.js with drag-and-drop slider implementation
+- Added SettingsScene to main.js scene list
+- Updated CharacterSelectScene with Settings button
+- Added stats tracking: totalDamageDealt, enemiesKilled, upgradesTaken
+- Modified UISystem.createUI() to add ESC button with hover effects
+
+---
+
+## [2.3.2] - 2025-11-12
+
+### Added
+- **Stats Tracking System**
+  - Added totalDamageDealt tracking in applyDamage()
+  - Added enemiesKilled counter in killEnemy()
+  - Added upgradesTaken[] array in UpgradeSystem.applyUpgrade()
+  - Element selection tracking for character stats
+  - Foundation for stats screen implementation
+
+### Changed
+- **Healing Numbers Now Green**
+  - Lifesteal healing displays as green damage numbers
+  - Modified applyDamage() to show green (+X) healing text
+  - Visual distinction between damage and healing
+
+---
+
+## [2.3.1] - 2025-11-12
+
+### Added
+- **New Universal Upgrade: Critical Strike**
+  - 15% chance for 2x damage on all player attacks
+  - Applies to ALL damage sources from player
+  - Shows yellow "CRIT! X" text on critical hits
+  - Icon: 💥
+
+- **New Universal Upgrade: Armor Boost**
+  - +3 Defense
+  - Reduces incoming damage
+  - Icon: 🛡️
+
+- **New Shadow Upgrade: Lifesteal**
+  - Replaces Shadow Nightmare upgrade
+  - Heal 10% of damage dealt while using Shadow element
+  - Applies to all damage player deals
+  - Shows green healing numbers
+  - Icon: 🩸
+
+### Changed
+- **Centralized Damage System**
+  - Created applyDamage() helper function for consistent damage application
+  - Replaced all enemy.health -= damage with applyDamage() calls (9 locations)
+  - Critical strike check now centralized in one location
+  - Lifesteal check now centralized in one location
+  - Improved code maintainability and consistency
+
+### Removed
+- **Speed Boost Universal Upgrade**
+  - Removed completely from the game
+  - Simplified universal upgrade pool
+
+---
+
+## [2.3.0] - 2025-11-12
+
+### Changed - MAJOR REFACTOR
+- **Wave System Decoupled from Level-Ups**
+  - Waves now auto-start 2 seconds after all enemies die
+  - Level-ups happen independently when XP threshold reached
+  - Removed waveReadyToStart flag and related methods
+  - Removed XP guarantee from WaveSystem.completeWave()
+  - Removed wave control from UpgradeSystem
+  - Simplified from complex callback system to independent progression
+  - Fixes timing issues and race conditions between waves and level-ups
+
+### Technical Details
+- Modified WaveSystem.completeWave() to auto-start next wave
+- Removed isWaveReady() and setWaveReady() methods
+- Removed wave callback from UpgradeSystem.hideUpgradeMenu()
+- Changed from user-triggered waves to automatic progression
+- Wave delay: 2 seconds between completion and next wave start
+
+---
+
+## [2.2.10] - 2025-11-12
+
+### Fixed
+- **Music Not Restarting After Death/Retry**
+  - Music now properly restarts when clicking retry button
+  - Root cause: bgMusic.stop() didn't destroy the music object
+  - Solution: Added bgMusic.destroy() and bgMusic = null in gameOver()
+  - Also fixed in quitToMenu() for consistency
+  - Music create() check now works correctly on retry
+
+---
+
+## [2.2.9] - 2025-11-12
+
+### Fixed
+- **Fall Map Leaves Overlaying Upgrade Menu**
+  - Changed fall leaves depth from 500 to 50
+  - Leaves now render below upgrade menu (depth 1000+)
+  - Prevents visual obstruction during level-ups
+
+- **Wind Boomerang Not Targeting Nearest Enemy**
+  - Fixed targeting logic to track active targeting boomerang
+  - Changed from checking boomerangNumber to dedicated tracking
+  - One boomerang now always targets nearest enemy as intended
+
+- **Terra Walls Not Cleaning Up**
+  - Added wall.physicsBody.clear(true, true) before destroy()
+  - Walls now properly clean up physics bodies
+  - Prevents memory leaks and stale physics objects
+
+- **Tree Physics Error on Spawn**
+  - Added body existence check before setCircle() call
+  - Prevents "Cannot read properties of undefined" error
+  - Tree collisions now safe from race conditions
+
+---
+
+## [2.2.8] - 2025-11-12
+
+### Changed
+- **Nature Regeneration Nerfed**
+  - Healing rate: 1 HP per 1 second → 1 HP per 2 seconds (50% slower)
+  - More balanced for Nature element survivability
+  - Modified regeneration timing from 1000ms to 2000ms
+
+- **Bomber Damage Buffed**
+  - Explosion damage: 5 → 10 (100% increase)
+  - Makes bombers more threatening and impactful
+  - Rewards players for killing bombers before they explode
+
+- **Physics Boundaries Updated**
+  - Physics world bounds set to y=595 (prevents walking into UI area)
+  - Player and enemies now collide with bottom boundary
+  - UI area at bottom (600-700px) now protected from gameplay
+
+- **Player Invincible During Level-Up**
+  - Added isLevelingUp flag to player
+  - All damage sources check isLevelingUp before applying damage
+  - Prevents frustrating deaths during upgrade selection
+  - Applied to: enemy collision, boss lasers, tank lasers, bomber explosions
+
+- **Tank Laser Color Changed**
+  - Tank lasers now red (0xff0000) instead of cyan
+  - Better visual distinction from other attack types
+  - Implemented full tank laser collision system
+
+### Technical Details
+- Modified GameScene.js regeneration timing at line 2932
+- Modified EnemySystem.js bomber damage at multiple locations
+- Set physics world bounds at GameScene create()
+- Added isLevelingUp checks in playerHitEnemy(), bossLaserAttack(), tank collision, bomber explosions
+- Changed tank laser graphics fillStyle to 0xff0000
+
+---
+
+## [2.2.7] - 2025-11-11
+
+### Improved
+- **Major Performance: Object Pooling Implementation**
+  - Implemented object pooling for projectiles (max 100 pool size)
+  - Implemented object pooling for damage numbers (20 text objects recycled)
+  - Implemented object pooling for XP orbs (max 50 pool size)
+  - Expected 20-30% FPS improvement during heavy combat
+  - Reduces garbage collection pauses and memory churn
+
+### Technical Details
+- **Projectile Pooling:**
+  - Configured physics group with maxSize: 100
+  - Changed all `projectile.destroy()` → `setActive(false).setVisible(false)`
+  - Projectiles now recycled instead of destroyed (7 locations updated)
+  - Off-screen, tree collision, timed destruction all use pooling
+
+- **Damage Number Pooling:**
+  - Created damageNumberPool array for text object reuse
+  - Reuses existing text objects by updating text/position/alpha
+  - Only creates new text if pool is empty
+  - Automatic return to pool after animation completes
+
+- **XP Orb Pooling:**
+  - Configured physics group with maxSize: 50
+  - Group automatically recycles inactive orbs
+
+### Performance Impact
+- Before: ~1000 object allocations per minute in Wave 15+
+- After: ~50-100 allocations per minute (95% reduction)
+- Eliminates stuttering from garbage collection
+- Smoother gameplay during particle-heavy moments
+
+---
+
+## [2.2.6] - 2025-11-11
+
+### Fixed
+- **Bug Fix: Blind Effect Never Expires (HIGH Priority)**
+  - Added missing duration handling for Blind status effect in updateStatusEffects()
+  - Blind effect now properly expires after 2 seconds as intended
+  - Previously, blinded enemies stayed permanently blinded
+  - Location: GameScene.js:2434-2440
+
+- **Bug Fix: Cosmic Dash First Use Delay**
+  - Cosmic Dash (Celestial upgrade) now fires immediately on first use
+  - Fixed timer initialization: `lastDashTime = time - cooldown` instead of `0`
+  - Eliminates unintended 5-second delay on first teleport
+  - Location: GameScene.js:2664
+
+- **Bug Fix: Regeneration First Heal Delay**
+  - Regeneration (Nature upgrade) now heals immediately on first tick
+  - Fixed timer initialization: `lastRegenTime = time - 1000` instead of `0`
+  - Eliminates unintended 1-second delay before first heal
+  - Location: GameScene.js:2780
+
+- **Bug Fix: Event Horizon First Damage Delay**
+  - Event Horizon (Gravity upgrade) confused enemies now damage immediately
+  - Fixed timer initialization: `lastConfusionDamageTime = time - 1000` instead of `0`
+  - Eliminates unintended 1-second delay on first damage tick
+  - Location: GameScene.js:2903
+
+### Technical Details
+- Followed OPTIMIZATION_BUGFIX_ROUTINE.md systematic bug audit
+- Searched for 5 common bug patterns across codebase
+- Found 4 bugs total (1 HIGH, 2 MEDIUM, 1 LOW priority)
+- All timer initialization bugs follow same pattern: initialize to `time - cooldown` for immediate first activation
+
+---
+
+## [2.2.5] - 2025-11-11
+
+### Fixed
+- **Level Up Effect Timing**
+  - Added 1.25 second delay before upgrade menu appears
+  - Players can now see the element-colored particle burst effect
+  - Effect plays immediately on level up, menu appears after delay
+  - Improves visual feedback and celebration moment
+
+---
+
+## [2.2.4] - 2025-11-11
+
+### Added
+- **Visual Polish: Screen Shake on Boss Death**
+  - Subtle camera shake effect (300ms, 0.005 intensity) when boss is defeated
+  - Enhances impact and satisfaction of boss kills
+
+- **Visual Polish: Element-Colored Level Up Effect**
+  - Level up particle burst now matches player's element color
+  - Gold particles if no element selected yet
+  - 12 particles burst outward in circular pattern with pulsing ring
+
+- **Visual Polish: Invulnerability Glow**
+  - Pulsing glow effect around wizard when invulnerable
+  - Matches element color (white if no element)
+  - Pulses between 0.6x-1.0x radius with dynamic alpha
+  - Works alongside existing flicker effect
+
+### Improved
+- **Performance: Status Effect Particle Throttling**
+  - Status effect visuals now update every 5 frames instead of every frame
+  - Expected 10-15% FPS improvement with many enemies on screen
+  - Visual quality maintained - difference imperceptible to players
+
+- **Performance: Enemy AI Debouncing**
+  - Enemy pathfinding calculations throttled to every 3 frames
+  - Direction/velocity cached and reused between calculations
+  - Expected 5-10% FPS improvement with 20+ enemies
+  - Smoother performance in late-game waves
+
+---
+
+## [2.2.3] - 2025-11-11
+
+### Added
+- **New Universal Upgrade: Speed Boost**
+  - +20% movement speed increase
+  - Icon: 💨
+  - Available to all players alongside Health Boost and Damage Boost
+  - Enhances kiting and positioning strategies
+
+### Improved
+- **Performance Optimization: Damage Number Limit**
+  - Capped maximum on-screen damage numbers to 20
+  - Oldest damage numbers automatically removed when limit reached
+  - Expected 5-10% FPS improvement during heavy combat
+  - Prevents memory accumulation during extended play sessions
+
+### Changed
+- **Code Cleanup**
+  - Removed 2 debug console.log statements
+  - Removed dead code comments
+  - Cleaner codebase with improved maintainability
+
+---
+
+## [2.2.0] - 2025-11-10
+
+### Changed
+- **Nature Element Fire Rate Increased by 50%**
+  - Seed planting cooldown: 1000ms → 667ms
+  - Plants seeds 50% faster for higher DPS
+  - Significantly improves Nature element combat effectiveness
+
+- **Shadow Element Fire Rate Increased by 50%**
+  - Clone spawn time: 3000ms → 2000ms (spawns 1 second earlier)
+  - Clone damage rate: 2000ms → 1333ms (attacks 50% faster)
+  - Major buff to Shadow element damage output
+
+### Fixed
+- **Spring Map Mobile Performance**
+  - Reduced flower count from 40 to 15 on mobile devices (62.5% reduction)
+  - Significantly improves frame rate on mobile
+  - Matches optimization pattern used for fall leaves
+
+### Improved
+- **Nature/Shadow Combat Feel:** Both elements now feel more responsive and powerful
+- **Mobile Performance:** Spring map no longer lags on mobile devices
+
+---
+
+## [2.1.9] - 2025-11-10
+
+### Changed
+- **Water Element Complete Redesign**
+  - Removed bullet system
+  - New piercing water stream attack (200px length, 1/4 screen)
+  - Auto-aims to nearest enemy
+  - Stream passes through all enemies in path
+  - 12px width with water flow visual effect
+  - 1 second cooldown maintained
+  - Still applies freeze with 50% chance
+
+- **Enemy Hitboxes Reduced by 50%**
+  - Regular enemies: 20px → 10px hitbox
+  - Boss enemies: 40px → 20px hitbox
+  - Makes enemies easier to hit without getting damaged first
+  - Note: This reverses the hitbox increases from earlier v2.1.9 iteration
+
+- **All Player Attack Hitboxes Increased by 50%**
+  - **Wizard orbs:** Collision radius 18px → 27px, physics body 8px → 12px
+  - **Celestial orbs:** Physics body 16px → 24px
+  - **Gravity orbs:** Physics body 8px → 12px
+  - **Flame attack:** Range 100px → 150px
+  - **Electric lightning:** (No hitbox change - uses direct targeting)
+  - **Nature explosions:** Radius 100px → 150px
+  - **Wind boomerangs:** Collision 15px → 22.5px
+  - **Terra walls:** Size 40px → 60px
+  - **Radiant beams:** Detection radius 60px → 90px
+  - **Shadow clones:** Collision radius 25px → 37.5px (scaled with mobile)
+
+### Fixed
+- **Mobile Performance Optimization**
+  - Reduced fall season leaf count from 100 to 30 on mobile (70% reduction)
+  - Capped maximum enemy count at 15 on mobile devices
+  - Significantly improves frame rate and gameplay smoothness on mobile
+
+### Improved
+- **Combat Feel:** Player attacks now have more forgiving hitboxes
+- **Enemy Balance:** Reduced enemy collision boxes prevent damage before player can attack
+- **Water Gameplay:** New piercing stream allows hitting multiple enemies per attack
+
+---
+
+## [2.1.8] - 2025-11-10
+
+### Fixed
+- **Shadow Clone Mobile Scaling Bug**
+  - Fixed shadow clones not being scaled for mobile (1.5x)
+  - Fixed collision radius not scaled for mobile devices
+  - Shadow clones now properly match player/enemy sizes on mobile
+  - This was the root cause of recurring "shadow clone not damaging" issue
+
+### Changed
+- **Flame Element Balance**
+  - Attack rate increased to twice as fast (1.5s → 0.75s cooldown)
+  - Significantly increases DPS for Flame element
+
+- **Terra Element Balance**
+  - Added +20 base damage bonus (20 → 40 total damage)
+  - Terra now deals highest base damage of all elements
+  - Balances Terra's slow attack rate with higher damage per hit
+
+---
+
+## [2.1.6] - 2025-11-10
+
+### Fixed
+- **Universal Damage Boost Upgrade Not Working**
+  - Fixed 6 elements using hardcoded damage instead of `this.player.damage`
+  - **Water bullets:** 15 → 30 damage (now uses player.damage, includes +10 element bonus)
+  - **Wind boomerang:** 15 → 30 damage (now uses player.damage, includes +10 element bonus)
+  - **Nature explosions:** 30 → 20 damage (now uses player.damage correctly)
+  - **Terra walls:** 30 → 20 damage (now uses player.damage correctly)
+  - **Radiant beam:** Now uses player.damage instead of hardcoded 20
+  - **Shadow clones:** 15 → 20 damage (now uses player.damage)
+  - All elements now benefit from the +50% Damage Boost universal upgrade
+  - Corrects damage values to match design specs in MagicAffinityBible.md
+
+---
+
+## [2.1.5] - 2025-11-10
+
+### Fixed
+- **Shadow Clone Damage Bug**
+  - Fixed shadow clones not damaging enemies on contact (recurring issue)
+  - Changed `lastDamageTime` initialization from `0` to `time - 2000` to allow immediate damage
+  - Fixed frame-rate dependent movement using hardcoded `0.016` delta
+  - Now uses actual `delta` parameter for frame-rate independent movement
+  - Removed redundant damage timer initialization check
+
+### Changed
+- **Shadow Clone Mechanics Documentation**
+  - Added detailed shadow clone behavior to MagicAffinityBible.md
+  - Documented clone spawn timing, damage rate, targeting range, and AI behavior
+  - Fixed Shadow upgrades list (removed non-existent "Siphon", added missing "Void Clone")
+
+---
+
+## [2.1.4] - 2025-11-10
+
+### Added
+- **New Universal Upgrade: Damage Boost**
+  - +50% damage increase
+  - Available to all players
+  - Icon: ⚔️
+
+### Changed
+- **Wave Completion Heal**
+  - Players now heal 10 HP every time they complete a wave
+  - Encourages aggressive play and rewards wave completion
+
+- **Electric Element Balance**
+  - Chain Lightning range reduced by 30% (150px → 105px)
+  - Makes electric more balanced in group fights
+
+- **Terra Element Balance**
+  - Tremor area effect range reduced by 30% (80px → 56px)
+  - Balances terra's area control power
+
+- **Winter Season Enhancement**
+  - Ice patches now provide 100% speed increase (was 50%)
+  - Movement is twice as fast but with reduced control
+  - Makes winter more distinct and challenging
+
+- **Fall Season Enhancement**
+  - Flying brown leaves increased from 30 to 100
+  - Significantly more vision obscuration for challenge
+
+---
+
+## [2.1.3] - 2025-11-10
+
+### Fixed
+- **Electric Element Console Error**
+  - Fixed critical bug where Chain Lightning and Event Horizon upgrades would kill enemies mid-loop
+  - This caused `Cannot read properties of undefined (reading 'setVelocity')` console errors
+  - Added safety checks before all `enemy.body.setVelocity()` calls in GameScene.js
+  - Affected lines: 2683, 2726, 2736
+
+### Changed
+- **Water Element Balance**
+  - Water element now receives +10 base damage bonus upon selection
+  - Total base damage: 30 (was 20)
+  - Makes Water more viable for both control and damage
+
+- **Wind Element Balance**
+  - Wind element now receives +10 base damage bonus upon selection
+  - Total base damage: 30 (was 20)
+  - Enhances Wind's aggressive control playstyle
+
+---
+
+## [2.0.0] - 2025-11-08
+
+### Added - ELEMENTAL MAGIC SYSTEM (PHASE 2)
+- **Complete Status Effect System**
+  - Burn: 3 damage per second for 3 seconds (Flame)
+  - Freeze: Stops enemy movement for 2 seconds, 15% chance (Water)
+  - Poison: Doubling damage over time (2, 4, 8, 16...) for 6 seconds (Nature)
+  - Paralyze: Stuns enemy for 1 second, 20% chance (Electric)
+  - Sleep: Enemy cannot act for 2 seconds, 10% chance (Wind)
+  - Charm: Enemy stops attacking for 3 seconds, 5% chance (Celestial)
+  - Confusion: Random movement for 2 seconds, 10% chance (Gravity)
+  - Blind: Reduces enemy accuracy, 15% chance (Radiant)
+  - Fear: Enemy flees from player for 2 seconds, 10% chance (Shadow)
+  - Slow: Reduces enemy speed by 40% (Gravity)
+  - Knockback: Pushes enemies away (Wind, Terra)
+
+- **40 Element-Specific Upgrades (4 per element)**
+  - **Flame:** Inferno Blast, Wildfire, Molten Core, Firestorm
+  - **Water:** Deep Freeze, Glacial Shards, Permafrost, Tidal Wave
+  - **Electric:** Chain Lightning, Overload, Static Field, Surge
+  - **Nature:** Toxic Bloom, Regeneration, Thornmail, Spore Cloud
+  - **Wind:** Gale Force, Zephyr, Cyclone, Suffocate
+  - **Terra:** Earthquake, Stone Skin, Tremor, Mountain's Might
+  - **Gravity:** Gravitational Pull, Singularity, Dense Matter, Event Horizon
+  - **Celestial:** Astral Chains, Starfall, Cosmic Dash, Void Step
+  - **Radiant:** Divine Blessing, Brilliant Flash, Beacon of Hope, Radiant Shield
+  - **Shadow:** Nightmare, Dark Embrace, Siphon, Umbral Shroud
+
+- **Complex Upgrade Mechanics**
+  - Wildfire: Burn spreads to nearby enemies within 60px radius
+  - Spore Cloud: Poison spreads to nearby enemies within 60px radius
+  - Chain Lightning: Attacks jump to 1 nearby enemy (150px range, 50% damage)
+  - Static Field: Paralyzed enemies take 2 damage every 0.5 seconds
+  - Tidal Wave: Can freeze 2 enemies at once (80px range)
+  - Tremor: Knockback affects area around impact (80px, half power)
+  - Dense Matter: Slow affects larger area (100px, half effectiveness)
+  - Event Horizon: Confused enemies damage each other (50px, 3 damage/sec)
+  - Cosmic Dash: Teleport 150px on spacebar with 5s cooldown and visual effects
+  - Void Step: 10% chance to dodge attacks with "DODGE" text
+  - Umbral Shroud: Enemies have 15% miss chance with "MISS" text
+  - Radiant Shield: Reduce damage taken by 10%
+  - Thornmail: Reflect 15% of damage taken back to attacker
+  - Regeneration: Heal 2 HP per second
+  - Siphon: Heal 5 HP per feared enemy kill
+
+- **Visual Status Effect System**
+  - Burn: Fire particles rising from enemy (orange/red colors)
+  - Freeze: Ice overlay with light blue circle and crystalline border
+  - Poison: Green bubbles floating upward with scaling animation
+  - Paralyze: Yellow electric sparks appearing randomly
+  - Sleep: White "Z" symbols floating up
+  - Charm: Pink heart particles rising
+  - Confusion: Rotating yellow stars (★ ★ ★) above enemy
+  - Blind: Dark semi-transparent overlay covering enemy
+  - Fear: Red exclamation mark (!) above enemy head
+  - Slow: Blue aura circle outline around enemy
+  - All effects follow enemy position and auto-cleanup on status end or death
+
+- **Wizard Visual Customization**
+  - Wizard starts grey with no element chosen
+  - Upon selecting element, wizard's hat, robe, sleeves, and staff orb change to element color
+  - Flame: Orange-red (#FF4500)
+  - Water: Royal blue (#4169E1)
+  - Electric: Yellow (#FFFF00)
+  - Nature: Lime green (#32CD32)
+  - Wind: Light cyan (#E0FFFF)
+  - Terra: Brown (#8B4513)
+  - Gravity: Purple (#9933FF)
+  - Celestial: Gold (#FFD700)
+  - Radiant: White (#FFFFFF)
+  - Shadow: Dark grey (#2F2F2F)
+
+### Changed
+- **Difficulty Increased**
+  - Player max health reduced from 100 to 50 (50% reduction)
+  - Game now significantly more challenging
+  - Health Boost upgrade becomes more valuable
+
+- **Upgrade System Redesign**
+  - Removed old wizard upgrades: Extra Orb, Orbit Speed, Orbit Range, Gravity Crush, Confusion, Event Horizon
+  - Removed Archer/Warrior upgrades: Rapid Fire
+  - Only universal upgrade: Health Boost (+20 Max HP, restore 30 HP)
+  - All other upgrades are element-specific and only appear after choosing an element
+
+- **XP and Progression**
+  - 1 wave completion now equals exactly 1 level-up
+  - Wave completion awards remaining XP needed to level up
+  - Players still collect XP orbs from enemies, but wave guarantees the level
+  - XP requirement per level still scales (100, 150, 225, 338, etc.)
+
+- **Elemental Effects Applied to Orbs**
+  - All orb hits now apply element-specific status effects
+  - Upgrade bonuses modify effect chances, durations, and damage
+  - Molten Core: +25% damage to burning enemies
+  - Glacial Shards: +30% damage to frozen enemies
+  - Surge: +30% damage vs tank enemies
+
+### Fixed
+- Element-specific upgrade bonuses now properly apply to game mechanics
+- Status effects correctly prevent movement when frozen/paralyzed/sleeping
+- Confused enemies move randomly as intended
+- Feared enemies flee from player correctly
+
+---
+
+## [1.2.1] - 2025-11-08
+
+### Changed
+- **Game renamed to "Magic Affinity"**
+  - Updated all references from "Root Test Game", "Pixel Dungeon Survivor", and "Twinstick Demo"
+  - Updated HTML title tag
+  - Updated all documentation files (README.md, TwinStick Bible.md, game-development-template.md)
+  - Unified all file references to `index.html`
+
+### Fixed
+- Fixed syntax error on line 462 (nested ternary operator formatting issue)
+- Fixed missing favicon causing 404 error
+- Added inline SVG favicon with sword emoji
+
+---
+
+## [1.2.0] - 2025-11-06
+
+### Changed
+- **Archer Mechanic Redesigned - Complete overhaul of shooting system**
+  - Changed from mouse-aim to movement-based shooting
+  - Archer now shoots in OPPOSITE direction of movement (natural kiting)
+  - Only shoots while moving (standing still = no shooting)
+  - WASD now controls both movement AND shooting direction
+  - Better mobile support (no separate aim input needed)
+  - Improved skill expression through movement choices
+
+### Technical
+- Added new function `shootArrowOppositeMovement(moveX, moveY)`
+- Removed dependency on mouse/pointer input for Archer
+- Kept old `shootArrowTowardsMouse()` function for potential future use
+
+---
+
+## [1.1.2] - 2025-11-06
+
+### Fixed
+- **CRITICAL: Fixed Archer Arrow Freeze Bug**
+  - Game would completely freeze when Archer's arrow hit an enemy
+  - Added `hasHit` flag to prevent multiple collision callbacks
+  - Prevents infinite loop of collision checks
+
+- **Fixed setTint Error on Enemy Hit**
+  - Replaced `enemy.setTint()` with `enemy.setAlpha()` for Graphics objects
+  - Fixed console error when arrows hit enemies
+
+### Changed
+- **Character Rename: Rogue → Archer**
+  - Renamed throughout game for better clarity
+  - "Archer" better matches gameplay (ranged bow shooter)
+  - Updated all UI text, internal variables, and comments
+
+---
+
+## [1.1.1] - 2025-11-03
+
+### Fixed
+- **CRITICAL: Wave 1 Freezing Bug**
+  - Game no longer freezes during first wave
+  - Separated boss wave logic from regular wave logic
+  - Fixed wave completion check to account for boss spawn
+
+- **Enemies Attacking During Pause**
+  - Tank lasers, boss lasers, and bomber teleports no longer fire during level-up pause
+  - Added `!this.paused` checks to all special attacks
+
+- **Wave Completion Counting**
+  - Boss waves now complete properly (1 boss + 3 minions = 4 total)
+  - Fixed counting logic to include boss in spawn count
+
+### Added
+- Initialized `isBossWave` flag in `create()` method to prevent undefined behavior
+- Pause state checks to enemy spawn callbacks
+
+---
+
+## [1.1.0] - 2025-11-03
+
+### Added
+- **Pause Menu System**
+  - ESC or P key to pause/unpause
+  - Resume and Quit to Menu buttons
+  - Physics fully paused during pause state
+
+- **Fullscreen Mode**
+  - Button in top-right corner of character select
+  - Game scales to fit screen with aspect ratio maintained
+
+- **Touch/Mobile Support**
+  - Virtual joystick for mobile devices (bottom-left corner)
+  - Touch controls work seamlessly with all 3 characters
+  - Auto-detects touch support
+
+- **Seasonal Maps System**
+  - 4 unique map themes: Spring, Summer, Fall, Winter
+  - Each season has distinct visuals and mechanics:
+    - **Spring:** 40 colorful flowers, thorny bushes (hazard)
+    - **Summer:** 8 trees that BLOCK projectiles, fire pits (hazard)
+    - **Fall:** 30 flying leaves that obscure vision, poison mushrooms (hazard)
+    - **Winter:** Slippery ice patches (50% speed boost, reduced control), ice spikes (hazard)
+
+- **Environmental Hazards**
+  - 5 hazards per map (3 damage per second)
+  - Season-specific visuals and effects
+  - 1 second cooldown between damage ticks
+
+- **Boss System**
+  - Bosses spawn every 5 waves (Wave 5, 10, 15, 20, etc.)
+  - Dedicated boss health bar at top of screen
+  - Dramatic entrance with camera shake and warning message
+  - Boss + 3 minions per boss wave
+  - Scaling stats based on wave number
+
+- **New Enemy Types**
+  - **Tank (Wave 7+):** Slow, very tanky, fires laser beams, 50% projectile resistance
+  - **Bomber (Wave 7+):** Teleports near player, explodes when low HP, AoE damage
+
+### Enhanced
+- Boss now shoots 2 lasers (one at player, one random direction)
+- Enhanced seasonal visuals with detailed patterns
+- Trees provide strategic cover (block all projectiles)
+- Ice mechanics add movement challenge (speed vs control)
+
+### Technical
+- Enhanced `createBackground()` with detailed seasonal rendering
+- Added tree collision physics (static group)
+- Added falling leaves animation system
+- Added ice slipperiness detection and drag mechanics
+- Trees block projectiles via collider system
+
+---
+
+## [1.0.0] - 2025-11-01 (Estimated)
+
+### Added
+- **Initial Release - Playable MVP**
+- 3 Playable Characters:
+  - Archer (movement-based shooting, fast, glass cannon)
+  - Warrior (auto-targeting, tanky, slow)
+  - Wizard (orbiting orbs, medium complexity)
+
+- **Core Gameplay**
+  - Wave-based enemy spawning with scaling difficulty
+  - 5 Enemy types: Slime, Goblin, Tank, Bomber, Boss
+  - XP and leveling system
+  - 12 Upgrade types (6 universal + 1 archer/warrior + 5 wizard-only)
+
+- **Game Systems**
+  - Health, damage, and combat systems
+  - Invulnerability frames (1 second after hit)
+  - Damage numbers floating text
+  - Particle effects (death explosions, level up)
+  - Sound effects (8 types, procedurally generated)
+
+- **UI/UX**
+  - Character selection screen with stats
+  - In-game HUD (health bar, XP bar, wave number, score, time)
+  - Boss health bar system
+  - Game over screen with final stats
+  - High score tracking (session-based)
+
+- **Visual/Audio**
+  - Pixel art style (16x16 character sprites)
+  - Procedural sound generation (Web Audio API)
+  - Visual feedback (camera shake, screen effects)
+  - Tiled grass background
+
+### Technical
+- Built with Phaser 3 (v3.70.0)
+- Single self-contained HTML file
+- 800x600 resolution
+- 60 FPS target
+- Arcade physics engine
+
+---
+
+## Version Naming Convention
+
+**Format:** MAJOR.MINOR.PATCH
+
+- **MAJOR:** Significant gameplay overhauls or fundamental changes
+- **MINOR:** New features, characters, enemies, or systems
+- **PATCH:** Bug fixes, balance changes, small improvements
+
+---
+
+## Future Versions (Planned)
+
+### [1.3.0] - Planned
+- Elemental magic system integration
+- 4th character class
+- More upgrade variety (15+ total)
+- Meta-progression system
+
+### [2.0.0] - Planned
+- Multiple boss types with unique attacks
+- Achievement system
+- Save/load system (localStorage)
+- Difficulty selection modes
+
+---
+
+**Project:** Magic Affinity
+**Repository:** Monochrome-prism.github.io
+**Last Updated:** November 8, 2025

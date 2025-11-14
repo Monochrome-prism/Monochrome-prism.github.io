@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <title>Magic Affinity</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>">
+        <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
+        <style>
+            * {
+                -webkit-tap-highlight-color: transparent;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                user-select: none;
+            }
+
+            html, body {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                position: fixed;
+                background: #1a1a2e;
+            }
+
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-family: "Courier New", monospace;
+            }
+
+            #game-container {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            #game-container canvas {
+                display: block;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            }
+
+            /* Desktop: limit max size */
+            @media (min-width: 801px) {
+                #game-container {
+                    max-width: 800px;
+                    max-height: 700px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="game-container"></div>
+        <script type="module" src="./src/main.js"></script>
+    </body>
+</html>
