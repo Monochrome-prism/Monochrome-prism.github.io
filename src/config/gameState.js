@@ -5,7 +5,7 @@
 
 /**
  * @typedef {Object} GameState
- * @property {string|null} selectedCharacter - Character type (always 'wizard' now)
+ * @property {string|null} selectedCharacter - Character type (always 'suited man' now)
  * @property {number} currentLevel - Current player level
  * @property {number} totalXP - Total XP accumulated
  * @property {number} enemiesKilled - Total enemies killed

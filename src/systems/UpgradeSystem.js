@@ -83,7 +83,7 @@ export class UpgradeSystem {
     /**
      * Show element selection menu (level 1 only)
      * @param {Object} callbacks - Callbacks for GameScene actions
-     * @param {Function} callbacks.drawWizard - Function to redraw wizard with element color
+     * @param {Function} callbacks.drawWizard - Function to redraw suited man with element color
      * @param {Function} callbacks.updateOrbColors - Function to update orb colors
      * @param {Function} callbacks.removeOrbs - Function to remove orbs for certain elements
      * @returns {void}

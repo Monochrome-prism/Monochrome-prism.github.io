@@ -19,19 +19,29 @@ export class CharacterSelectScene extends Phaser.Scene {
 
         // Title
         this.add
-            .text(400, 130, "MAGIC AFFINITY", {
-                fontSize: "48px",
+            .text(400, 110, "BRANDED FOR DEATH", {
+                fontSize: "44px",
                 fill: "#ffd700",
                 fontFamily: "Courier New",
                 fontStyle: "bold",
             })
             .setOrigin(0.5);
 
-        // Subtitle
+        // Subtitle (game name)
         this.add
-            .text(400, 185, "Master the Elements. Survive the Waves.", {
-                fontSize: "18px",
+            .text(400, 160, "MAGIC AFFINITY", {
+                fontSize: "32px",
                 fill: "#87ceeb",
+                fontFamily: "Courier New",
+                fontStyle: "bold",
+            })
+            .setOrigin(0.5);
+
+        // Tagline
+        this.add
+            .text(400, 195, "Master the Elements. Survive the Waves.", {
+                fontSize: "16px",
+                fill: "#888888",
                 fontFamily: "Courier New",
                 fontStyle: "italic",
             })
@@ -88,7 +98,7 @@ export class CharacterSelectScene extends Phaser.Scene {
 
         // Version number (bottom left)
         this.add
-            .text(10, 590, "v3.2.2", {
+            .text(10, 590, "v3.3.0", {
                 fontSize: "14px",
                 fill: "#666666",
                 fontFamily: "Courier New",

@@ -1,9 +1,82 @@
-# Changelog - Magic Affinity
+# Changelog - Branded For Death: Magic Affinity
 
-All notable changes to Magic Affinity will be documented in this file.
+All notable changes to Branded For Death: Magic Affinity will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [3.3.0] - 2025-11-14
+
+### Changed - VISUAL REDESIGN & REBRANDING
+- **Game Title Update**
+  - New title: "Branded For Death: Magic Affinity"
+  - Main title: "BRANDED FOR DEATH" (gold, 44px)
+  - Subtitle: "MAGIC AFFINITY" (cyan, 32px)
+  - Tagline: "Master the Elements. Survive the Waves." (gray, 16px)
+  - Location: CharacterSelectScene.js lines 20-48
+
+- **Character Redesign: Wizard → Suited Man**
+  - Replaced wizard character with mysterious suited man
+  - New visual design:
+    - Top hat with element-colored crown, darker brim (0.8x brightness)
+    - Black sunglasses (curved lenses, always black regardless of element)
+    - Element-colored suit jacket (trapezoid shape: wider shoulders, narrower waist)
+    - Darker element-colored collar/lapels
+    - Element-colored arms and legs
+    - Pale beige skin and hands (0xFFE4C4)
+    - Dynamic pose: one arm at side, one arm raised (waving/gesturing)
+  - Hitbox unchanged: 15px radius circle
+  - Total height: ~45px
+  - Location: DrawingHelpers.js lines 16-94
+
+- **Visual Customization Updates**
+  - Grey default appearance before element selection
+  - Upon element selection:
+    - Top hat crown: element color (full brightness)
+    - Top hat brim: darker element color (0.8x brightness)
+    - Suit, arms, legs: element color
+    - Orbiting orbs: element color
+  - Sunglasses remain black always (critical design choice)
+
+### Technical
+- **DrawingHelpers.js:**
+  - Created drawSuitedMan() function (lines 16-94)
+  - Deprecated drawWizard() function with @deprecated tag (lines 97-160)
+  - Color calculation for darker brim: RGB * 0.8 (lines 29-32)
+
+- **GameScene.js:**
+  - Import: drawWizard → drawSuitedMan (line 19)
+  - Updated all character drawing calls (lines 502, 3781)
+  - Updated comments: "wizard" → "suited man" (lines 495, 501, 507, 546, 550-551)
+
+- **CharacterSelectScene.js:**
+  - Updated title layout with three-tier display (lines 20-48)
+  - Repositioned UI elements for new title spacing
+
+- **UpgradeSystem.js:**
+  - Updated JSDoc: callbacks.drawWizard description updated (line 86)
+
+- **gameState.js:**
+  - Updated JSDoc: selectedCharacter description updated (line 8)
+
+### Documentation
+- **MagicAffinityBible.md:**
+  - Updated title: "Branded For Death: Magic Affinity" (line 1)
+  - Version bumped: 3.2.2 → 3.3.0 (line 3)
+  - Section renamed: "Wizard Stats" → "Player Character" (line 128)
+  - Added detailed "The Suited Man" section with visual specs (lines 130-168)
+  - Updated all "wizard" references to "suited man" or "player"
+  - Updated character sprite size: 16x16px → ~45px tall (line 768)
+  - Updated orb naming: "Wizard Orbs" → "Element Orbs" (line 772)
+  - Updated UI reference: "Wizard + Element" → "Suited Man + Element" (line 555)
+
+- **CHANGELOG.md:**
+  - Updated title with new game name
+  - Version bumped: 3.2.2 → 3.3.0
+
+- Version bumped: 3.2.2 → 3.3.0
 
 ---
 

@@ -16,7 +16,7 @@ import { CombatSystem } from '../systems/CombatSystem.js';
 import { EnemySystem } from '../systems/EnemySystem.js';
 import { ProgressionSystem } from '../systems/ProgressionSystem.js';
 import {
-    drawWizard,
+    drawSuitedMan,
     drawBoss,
     drawSlime,
     drawGoblin,
@@ -492,19 +492,19 @@ class GameScene extends Phaser.Scene {
      * @returns {void}
      */
     createPlayer() {
-        // Player is always the wizard now
+        // Player is always the suited man now
         this.player = this.add.graphics();
         this.player.x = 400;
         this.player.y = 300;
         // Graphics objects don't have setOrigin() - position is already centered
 
-        // Draw grey wizard (no element chosen yet)
-        drawWizard(this.player);
+        // Draw grey suited man (no element chosen yet)
+        drawSuitedMan(this.player);
 
         // Scale player for mobile (visual and physics)
         this.player.setScale(this.mobileScale);
 
-        // Wizard stats
+        // Suited man stats
         this.player.maxHealth = 50; // Reduced from 100 for increased difficulty
         this.player.baseSpeed = 140;
         this.player.baseDamage = 20;
@@ -543,12 +543,12 @@ class GameScene extends Phaser.Scene {
         this.player.invulnerable = false;
         this.player.invulnerableTime = 0;
 
-        // Create wizard orbs (will be grey until element is chosen)
+        // Create element orbs (will be grey until element is chosen)
         this.createWizardOrbs();
     }
 
-    // Archer and Warrior characters removed - Wizard only now
-    // drawWizard moved to src/utils/DrawingHelpers.js
+    // Archer and Warrior characters removed - Suited Man only now
+    // drawSuitedMan moved to src/utils/DrawingHelpers.js
 
     createWizardOrbs() {
         if (!this.player || !this.player.orbCount) {
@@ -3778,7 +3778,7 @@ class GameScene extends Phaser.Scene {
             // First level up = choose element, after that = upgrades
             if (this.player.level === 2 && !this.player.element) {
                 this.upgradeSystem.showElementSelection({
-                    drawWizard: () => drawWizard(this.player),
+                    drawWizard: () => drawSuitedMan(this.player),
                     updateOrbColors: (color) => this.updateOrbColors(color),
                     removeOrbs: () => {
                         if (this.wizardOrbs) {
