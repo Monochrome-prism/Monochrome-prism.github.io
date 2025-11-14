@@ -7,6 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.2.2] - 2025-11-14
+
+### Fixed - CRITICAL BUG FIXES
+- **Star's Orbit Bug (Celestial)**
+  - Fixed upgrade DECREASING orb speed instead of increasing it
+  - Root cause: Setting orbSpeed to absolute value (2.5 * 1.25) instead of multiplying current value
+  - Celestial starts with orbSpeed 5.0, upgrade was setting it to 3.125 (slower!)
+  - Now correctly multiplies current speed by 1.25 (e.g., 5.0 → 6.25 → 7.81...)
+  - Location: UpgradeSystem.js line 776
+
+- **Wind Boomerang Count**
+  - Fixed base boomerang count (was 1, should be 3)
+  - Hurricane upgrade now correctly adds to base 3 (3→4→5→6...)
+  - First boomerang targets nearest enemy, others shoot random directions
+  - Locations: UpgradeSystem.js lines 647-655, GameScene.js line 1448
+
+### Changed - UI IMPROVEMENTS
+- **Skill Tree Display**
+  - Removed 5-circle progress indicator (was overlapping with text)
+  - Now only shows level text (e.g., "3 / 5")
+  - Larger, gold-colored text for better readability
+  - Location: SkillTreeScene.js lines 96-105
+
+### Technical
+- **UpgradeSystem.js:**
+  - Star's Orbit: Changed from absolute value to multiplicative (line 776)
+  - Hurricane: Base count 1→3, description updated (lines 647-655)
+
+- **GameScene.js:**
+  - Wind boomerang max: Default 1→3 (line 1448)
+
+- **SkillTreeScene.js:**
+  - Removed circle rendering loop (lines 96-109)
+  - Updated level text formatting (line 99)
+  - Deprecated updateLevelCircles function (lines 242-245)
+
+- **CharacterSelectScene.js:**
+  - Version number: 3.2.1 → 3.2.2 (line 91)
+
+- **MagicAffinityBible.md:**
+  - Updated Wind element description with base 3 boomerangs
+  - Updated Hurricane upgrade description (3→4→5...)
+  - Version bumped to 3.2.2
+
+### Documentation
+- Version bumped: 3.2.1 → 3.2.2
+- All bug fixes documented
+
+---
+
 ## [3.2.1] - 2025-11-14
 
 ### Fixed - CRITICAL BUG FIXES

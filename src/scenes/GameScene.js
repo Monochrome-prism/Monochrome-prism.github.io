@@ -1445,7 +1445,7 @@ class GameScene extends Phaser.Scene {
         }
 
         // Fire boomerang every 1 second (Hurricane upgrade increases max simultaneous boomerangs)
-        const maxBoomerangs = this.player.maxBoomerangs || 1;
+        const maxBoomerangs = this.player.maxBoomerangs || 3; // Base 3 boomerangs
         if (time - this.player.lastBoomerangTime >= 1000 && this.windBoomerangs.length < maxBoomerangs) {
             this.player.lastBoomerangTime = time;
 

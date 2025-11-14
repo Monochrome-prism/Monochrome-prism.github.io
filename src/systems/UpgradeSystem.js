@@ -645,14 +645,14 @@ export class UpgradeSystem {
                     upgradeKey: "hurricane",
                     getDescription: () => {
                         const stacks = this.player.upgradeStacks?.hurricane || 0;
-                        const current = 1 + stacks;
+                        const current = 3 + stacks;
                         const next = current + 1;
                         return `Hurricane +1 boomerang (${current} → ${next} simultaneous)`;
                     },
                     apply: () => {
                         if (!this.player.upgradeStacks) this.player.upgradeStacks = {};
                         this.player.upgradeStacks.hurricane = (this.player.upgradeStacks.hurricane || 0) + 1;
-                        this.player.maxBoomerangs = 1 + this.player.upgradeStacks.hurricane;
+                        this.player.maxBoomerangs = 3 + this.player.upgradeStacks.hurricane;
                     }
                 }
             ],
@@ -772,8 +772,8 @@ export class UpgradeSystem {
                     apply: () => {
                         if (!this.player.upgradeStacks) this.player.upgradeStacks = {};
                         this.player.upgradeStacks.starsOrbit = (this.player.upgradeStacks.starsOrbit || 0) + 1;
-                        // Increase orb rotation speed by 25% (1.25x multiplier per stack)
-                        this.player.orbSpeed = 2.5 * (1 + (this.player.upgradeStacks.starsOrbit * 0.25));
+                        // Increase orb rotation speed by 25% - FIX: Multiply current speed, don't set to absolute value!
+                        this.player.orbSpeed *= 1.25;
                     }
                 },
                 {
