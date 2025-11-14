@@ -571,18 +571,26 @@ export class UpgradeSystem {
                 {
                     name: "Regeneration",
                     icon: "🌿",
-                    description: "Heal 5 HP per 5 seconds",
+                    description: "Heal 1% of max HP every 10 seconds",
                     apply: () => {
                         this.player.hasRegeneration = true;
-                        this.player.regenRate = (this.player.regenRate || 0) + 1;
                     }
                 },
                 {
-                    name: "Thornmail",
-                    icon: "🌹",
-                    description: "Reflect 15% of damage taken",
+                    name: "Toxicity",
+                    icon: "☠️",
+                    description: "Increase poison proc chance",
+                    upgradeKey: "toxicity",
+                    getDescription: () => {
+                        const stacks = this.player.upgradeStacks?.toxicity || 0;
+                        const currentChance = 30 + (stacks * 10);
+                        const nextChance = currentChance + 10;
+                        return `Toxicity +10% poison chance (${currentChance}% → ${nextChance}%)`;
+                    },
                     apply: () => {
-                        this.player.thornmail = (this.player.thornmail || 0) + 0.15;
+                        if (!this.player.upgradeStacks) this.player.upgradeStacks = {};
+                        this.player.upgradeStacks.toxicity = (this.player.upgradeStacks.toxicity || 0) + 1;
+                        this.player.poisonProcChance = 0.30 + (this.player.upgradeStacks.toxicity * 0.10);
                     }
                 },
                 {
@@ -731,11 +739,21 @@ export class UpgradeSystem {
                     }
                 },
                 {
-                    name: "Cosmic Dash",
-                    icon: "🌠",
-                    description: "Teleport short distance (Spacebar, 5s cooldown)",
+                    name: "Star's Orbit",
+                    icon: "⭐",
+                    description: "Increase orb rotation speed",
+                    upgradeKey: "starsOrbit",
+                    getDescription: () => {
+                        const stacks = this.player.upgradeStacks?.starsOrbit || 0;
+                        const currentBonus = stacks * 25;
+                        const nextBonus = (stacks + 1) * 25;
+                        return `Star's Orbit +25% fire rate (${currentBonus}% → ${nextBonus}%)`;
+                    },
                     apply: () => {
-                        this.player.hasCosmicDash = true;
+                        if (!this.player.upgradeStacks) this.player.upgradeStacks = {};
+                        this.player.upgradeStacks.starsOrbit = (this.player.upgradeStacks.starsOrbit || 0) + 1;
+                        // Increase orb rotation speed by 25% (1.25x multiplier per stack)
+                        this.player.orbSpeed = 2.5 * (1 + (this.player.upgradeStacks.starsOrbit * 0.25));
                     }
                 },
                 {
@@ -827,6 +845,12 @@ export class UpgradeSystem {
                     description: "Summon 2nd shadow clone (max 1x)",
                     apply: () => {
                         this.player.hasVoidClone = true;
+                        // Spawn the 2nd clone immediately (1st clone should already exist)
+                        if (this.scene.shadowClones && this.scene.shadowClones.length === 1) {
+                            const time = this.scene.time.now;
+                            const delta = this.scene.game.loop.delta;
+                            this.scene.spawnShadowClone(1, time, delta); // Spawn 2nd clone (index 1)
+                        }
                     }
                 },
                 {

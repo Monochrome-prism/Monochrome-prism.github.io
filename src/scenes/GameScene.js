@@ -847,12 +847,15 @@ class GameScene extends Phaser.Scene {
                     break;
 
                 case 'nature':
-                    // Poison: starts at 2 damage (+ bonuses), doubles every 2 seconds
-                    effects.poison.active = true;
-                    effects.poison.damage = 2 + (this.player.poisonDamageBonus || 0);
-                    effects.poison.duration = 6000;
-                    effects.poison.lastTick = now;
-                    effects.poison.stacks = 0;
+                    // Poison: 30% base chance (+ Toxicity upgrades), starts at 2 damage (+ bonuses), doubles every 2 seconds
+                    const poisonChance = this.player.poisonProcChance || 0.30; // 30% base chance
+                    if (Math.random() < poisonChance) {
+                        effects.poison.active = true;
+                        effects.poison.damage = 2 + (this.player.poisonDamageBonus || 0);
+                        effects.poison.duration = 6000;
+                        effects.poison.lastTick = now;
+                        effects.poison.stacks = 0;
+                    }
                     break;
 
                 case 'wind':
@@ -1398,8 +1401,9 @@ class GameScene extends Phaser.Scene {
                         const damage = this.player.damage;
                         this.applyDamage(enemy, damage, 0xffffff);
 
-                        // Apply poison status effect
-                        if (enemy.statusEffects) {
+                        // Apply poison status effect (30% base chance + Toxicity upgrades)
+                        const poisonChance = this.player.poisonProcChance || 0.30; // 30% base chance
+                        if (enemy.statusEffects && Math.random() < poisonChance) {
                             enemy.statusEffects.poison.active = true;
                             enemy.statusEffects.poison.damage = 2 + (this.player.poisonDamageBonus || 0);
                             enemy.statusEffects.poison.duration = 2000;
@@ -2891,72 +2895,6 @@ class GameScene extends Phaser.Scene {
             this.player.body.setDrag(500); // Normal drag
         }
 
-        // Cosmic Dash (Celestial upgrade) - teleport on spacebar
-        if (this.player.hasCosmicDash && Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
-            const dashCooldown = 5000; // 5 second cooldown
-            if (!this.player.lastDashTime) this.player.lastDashTime = time - dashCooldown; // Allow immediate first dash
-            if (time - this.player.lastDashTime >= dashCooldown) {
-                // Teleport in the direction of movement, or forward if not moving
-                const dashDistance = 150;
-                let dashX = moveX;
-                let dashY = moveY;
-                if (dashX === 0 && dashY === 0) {
-                    dashY = -1; // Default to up if not moving
-                }
-                // Normalize direction
-                const mag = Math.sqrt(dashX * dashX + dashY * dashY);
-                dashX /= mag;
-                dashY /= mag;
-
-                // Calculate new position
-                const newX = Phaser.Math.Clamp(
-                    this.player.x + dashX * dashDistance,
-                    30, 770
-                );
-                const newY = Phaser.Math.Clamp(
-                    this.player.y + dashY * dashDistance,
-                    30, 570
-                );
-
-                // Teleport effect - flash old position
-                const oldEffect = this.add.graphics();
-                oldEffect.x = this.player.x;
-                oldEffect.y = this.player.y;
-                oldEffect.lineStyle(2, 0x00ffff, 1);
-                oldEffect.strokeCircle(0, 0, 15);
-                oldEffect.setDepth(50);
-                this.tweens.add({
-                    targets: oldEffect,
-                    alpha: 0,
-                    scale: 2,
-                    duration: 400,
-                    onComplete: () => oldEffect.destroy()
-                });
-
-                // Teleport player
-                this.player.x = newX;
-                this.player.y = newY;
-                this.player.lastDashTime = time;
-
-                // Teleport effect - flash new position
-                const newEffect = this.add.graphics();
-                newEffect.x = newX;
-                newEffect.y = newY;
-                newEffect.fillStyle(0x00ffff, 0.5);
-                newEffect.fillCircle(0, 0, 20);
-                newEffect.setDepth(50);
-                this.tweens.add({
-                    targets: newEffect,
-                    alpha: 0,
-                    scale: 2,
-                    duration: 400,
-                    onComplete: () => newEffect.destroy()
-                });
-
-                soundFX.play("select"); // Use select sound for dash
-            }
-        }
-
         // Update falling leaves (fall season)
         if (this.fallingLeaves) {
             this.fallingLeaves.forEach((leaf) => {
@@ -3013,14 +2951,19 @@ class GameScene extends Phaser.Scene {
             this.updateWizardOrbs();
         }
 
-        // Regeneration upgrade (Nature) - heal over time
+        // Regeneration upgrade (Nature) - heal over time (1% max HP every 10 seconds)
         if (this.player.hasRegeneration) {
-            if (!this.player.lastRegenTime) this.player.lastRegenTime = time - 2000; // Allow immediate first heal
-            if (time - this.player.lastRegenTime >= 2000) {
+            if (!this.player.lastRegenTime) this.player.lastRegenTime = time - 10000; // Allow immediate first heal
+            if (time - this.player.lastRegenTime >= 10000) {
+                const healAmount = Math.ceil(this.player.maxHealth * 0.01); // 1% of max HP
                 this.player.health = Math.min(
                     this.player.maxHealth,
-                    this.player.health + this.player.regenRate
+                    this.player.health + healAmount
                 );
+
+                // Show green healing number
+                this.showDamageNumber(this.player.x, this.player.y, healAmount, 0x00ff88);
+
                 this.uiSystem.updateHealthBar(this.player);
                 this.player.lastRegenTime = time;
             }
