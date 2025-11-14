@@ -7,6 +7,88 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.2.0] - 2025-11-14
+
+### Changed - BALANCE & PROGRESSION UPDATES
+- **XP Collection System Redesign**
+  - Removed 5-second auto-collect timer
+  - Increased XP orb collision radius by 50% (8px → 12px)
+  - Players must now actively collect XP orbs for better risk/reward gameplay
+  - Larger collection range compensates for manual collection
+
+- **Enemy Speed Increases**
+  - Goblin speed: 60 → 70 (+16.7% faster)
+  - Tank speed: 20 → 30 (+50% faster)
+  - Makes mid-to-late game more challenging
+  - Requires better positioning and kiting
+
+- **Wave Pacing Acceleration**
+  - Staggered enemy spawning: 800ms → 500ms between spawns
+  - Waves ramp up 37.5% faster
+  - More intense combat pressure
+  - Locations: WaveSystem.js lines 106, 119
+
+- **Nature Element Rebalance**
+  - **Regeneration Rework:** Changed from flat 2 HP every 2 seconds to 1% max HP every 10 seconds
+  - Scales better with Health Boost upgrades (better late-game value)
+  - Weaker early game, stronger late game
+  - Shows green healing numbers for visual feedback
+  - **Thornmail Removed:** Replaced with Toxicity upgrade
+  - **Toxicity Added:** +10% poison proc chance (stackable: 30%→40%→50%→60%...)
+  - Base poison proc chance now 30% (was 100%)
+  - Applies to both orb hits and seed explosions
+  - Toxicity upgrade can stack infinitely for late-game scaling
+
+- **Celestial Element Rework**
+  - **Cosmic Dash Removed:** Teleport mechanic removed from the game
+  - **Star's Orbit Added:** +25% orb rotation speed (stackable: 0%→25%→50%→75%...)
+  - Increases damage output via faster attacks
+  - Stacks infinitely for continuous scaling
+  - More consistent with element's offensive identity
+
+- **Shadow Element Quality of Life**
+  - Void Clone now spawns 2nd clone **immediately** when upgrade is taken
+  - Previously delayed until next wave (poor UX)
+  - 1st clone still spawns 2 seconds after wave starts
+  - Locations: UpgradeSystem.js lines 846-854
+
+### Technical
+- **EnemySystem.js:**
+  - XP orb body: setCircle(8) → setCircle(12) (line 607)
+  - Removed auto-collect timer delayedCall (line 621-635)
+  - Goblin speed: 60 → 70 (line 173)
+  - Tank speed: 20 → 30 (line 181)
+
+- **WaveSystem.js:**
+  - Spawn delay: 800ms → 500ms (lines 106, 119)
+
+- **GameScene.js:**
+  - Regeneration: 2s interval → 10s, flat HP → 1% max HP (lines 3016-3032)
+  - Added poison proc chance checks (30% base) (lines 850-858, 1401-1408)
+  - Removed Cosmic Dash spacebar teleport code (lines 2898-2962 deleted)
+
+- **UpgradeSystem.js:**
+  - Regeneration: Removed regenRate property, updated description (lines 572-577)
+  - Thornmail → Toxicity: New stackable upgrade (lines 580-595)
+  - Cosmic Dash → Star's Orbit: New stackable upgrade (lines 742-758)
+  - Void Clone: Added immediate spawn logic (lines 846-854)
+
+- **MagicAffinityBible.md:**
+  - Updated version to 3.2.0
+  - Updated all enemy speed values
+  - Updated Nature upgrade descriptions
+  - Updated Celestial upgrade descriptions
+  - Updated Shadow upgrade descriptions
+  - Updated XP collection mechanics
+  - Updated spawn timing
+  - Added poison proc chance information
+
+### Documentation
+- Version bumped: 3.1.3 → 3.2.0
+- All changes documented in MagicAffinityBible.md
+
+---
+
 ## [3.1.3] - 2025-11-13
 
 ### Fixed - CRITICAL BUG FIXES

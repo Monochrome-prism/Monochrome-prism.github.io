@@ -1,7 +1,7 @@
 # Magic Affinity - Game Design Document
 
-**Version:** 3.1.3
-**Last Updated:** November 13, 2025
+**Version:** 3.2.0
+**Last Updated:** November 14, 2025
 **Status:** Complete Phase 3 - Meta-Progression with Stackable Upgrades
 
 ---
@@ -213,7 +213,7 @@ At level 1, choose one of 10 elemental types. Each element has:
 ---
 
 ### 🌿 NATURE - Sustain & Spread
-**Primary Effect:** Poison (2→4→8→16 damage doubling for 6 seconds)
+**Primary Effect:** Poison (30% proc chance, 2→4→8→16 damage doubling for 6 seconds)
 **Base Damage Bonus:** None (20 damage)
 **Attack Rate:** Plants seed every 667ms (50% faster fire rate)
 **Color:** Lime green (#32CD32)
@@ -222,8 +222,8 @@ At level 1, choose one of 10 elemental types. Each element has:
 
 **Upgrades:**
 1. **Toxic Bloom** - +2 seconds poison duration (6→8 seconds)
-2. **Regeneration** - Heal 2 HP per second
-3. **Thornmail** - Reflect 15% of damage back to attacker
+2. **Regeneration** - Heal 1% of max HP every 10 seconds
+3. **Toxicity** - +10% poison proc chance (stackable: 30%→40%→50%→60%...)
 4. **Spore Cloud** - Poison spreads to nearby enemies (60px radius)
 
 ---
@@ -284,7 +284,7 @@ At level 1, choose one of 10 elemental types. Each element has:
 **Upgrades:**
 1. **Astral Chains** - +1 second charm duration (3→4 seconds)
 2. **Starfall** - +3% charm chance (stackable: 5%→8%→11%→14%...)
-3. **Cosmic Dash** - Teleport 150px on spacebar (5s cooldown)
+3. **Star's Orbit** - +25% orb rotation speed (stackable: 0%→25%→50%→75%...)
 4. **Void Step** - 10% chance to dodge attacks with "DODGE" text
 
 ---
@@ -310,7 +310,7 @@ At level 1, choose one of 10 elemental types. Each element has:
 **Color:** Dark purple/indigo (#4B0082)
 **Orbs:** 0 (removed for shadow clone system)
 **Attack Pattern:** Shadow clones (AI-controlled minions)
-- 1 clone spawns 2 seconds after wave starts (2 with Void Clone upgrade)
+- 1 clone spawns 2 seconds after wave starts (2 with Void Clone upgrade - 2nd spawns immediately)
 - Each clone deals base damage (20) every 0.75 seconds on contact (individual timing)
 - Targets enemies within 250px of player
 - Clone AI: Type 0 targets farthest enemy, Type 1 targets nearest
@@ -318,7 +318,7 @@ At level 1, choose one of 10 elemental types. Each element has:
 **Upgrades:**
 1. **Lifesteal** - +10% lifesteal (stackable: 0%→10%→20%→30%... of damage as healing)
 2. **Dark Embrace** - +5% fear chance (stackable: 10%→15%→20%→25%...)
-3. **Void Clone** - Summon 2nd shadow clone (max 1x)
+3. **Void Clone** - Summon 2nd shadow clone immediately (max 1x)
 4. **Umbral Shroud** - Enemies have 15% miss chance with "MISS" text
 
 ---
@@ -336,13 +336,13 @@ At level 1, choose one of 10 elemental types. Each element has:
 
 **Spawn System:**
 - Enemies spawn from screen edges (random)
-- Staggered spawning (800ms between spawns)
+- Staggered spawning (500ms between spawns)
 - 2 second pause between waves
 
 **Scaling Formula:**
 - Enemies per wave: `enemiesThisWave * 1.3`
 - Enemy HP: `30 + (wave * 5)`
-- Enemy Speed: Static (no scaling) - Slime: 40, Goblin: 60, Tank: 20, Bomber: 45
+- Enemy Speed: Static (no scaling) - Slime: 40, Goblin: 70, Tank: 30, Bomber: 45
 - Enemy Damage: `5 + wave`
 
 ---
@@ -367,7 +367,7 @@ At level 1, choose one of 10 elemental types. Each element has:
 |------|---------|----------------|
 | Appearance | Wave 4+ | Wave 4+ |
 | Health | 50 + (wave * 8) | 82 HP |
-| Speed | 60 (static) | 60 |
+| Speed | 70 (static) | 70 |
 | Damage | 8 + (wave * 2) | 16 |
 | XP Value | 35 | 35 |
 | Score Value | 25 | 25 |
@@ -380,7 +380,7 @@ At level 1, choose one of 10 elemental types. Each element has:
 |------|---------|----------------|
 | Appearance | Wave 7+ | Wave 7+ |
 | Health | 150 + (wave * 15) | 255 HP |
-| Speed | 20 (static) | 20 |
+| Speed | 30 (static) | 30 |
 | Damage | 12 + (wave * 2) | 26 (melee), 15 (laser) |
 | XP Value | 60 | 60 |
 | Score Value | 50 | 50 |
@@ -442,8 +442,7 @@ At level 1, choose one of 10 elemental types. Each element has:
 
 **XP Collection:**
 - Blue orbs drop from killed enemies
-- Auto-collect after 5 seconds
-- Can collect earlier by walking over them
+- Collect by walking over them (150% collection range)
 
 ---
 

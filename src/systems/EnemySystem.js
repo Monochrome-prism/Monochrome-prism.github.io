@@ -170,7 +170,7 @@ export class EnemySystem {
             // Goblin (stronger, faster)
             drawGoblin(enemy);
             enemy.maxHealth = 50 + currentWave * 8;
-            enemy.speed = 60; // Static speed (no wave scaling)
+            enemy.speed = 70; // Static speed (no wave scaling) - increased from 60
             enemy.damage = (8 + currentWave * 2) * 2; // Doubled damage
             enemy.xpValue = 35;
             enemy.scoreValue = 25;
@@ -178,7 +178,7 @@ export class EnemySystem {
             // Tank (slow, high HP)
             drawTank(enemy);
             enemy.maxHealth = 150 + currentWave * 15;
-            enemy.speed = 20; // Static speed (no wave scaling)
+            enemy.speed = 30; // Static speed (no wave scaling) - increased from 20
             enemy.damage = (12 + currentWave * 2) * 2; // Doubled damage
             enemy.xpValue = 60;
             enemy.scoreValue = 50;
@@ -604,7 +604,7 @@ export class EnemySystem {
         orb.fillCircle(-2, -2, 2);
 
         this.scene.physics.add.existing(orb);
-        orb.body.setCircle(8);
+        orb.body.setCircle(12); // Increased from 8 to 12 (150% of original for better collection range)
         orb.setDepth(10); // Behind UI
         xpOrbs.add(orb);
 
@@ -615,23 +615,6 @@ export class EnemySystem {
             duration: 500,
             yoyo: true,
             repeat: -1,
-        });
-
-        // Auto-collect after 5 seconds
-        this.scene.time.delayedCall(5000, () => {
-            if (orb.active) {
-                this.scene.tweens.add({
-                    targets: orb,
-                    x: this.player.x,
-                    y: this.player.y,
-                    duration: 300,
-                    onComplete: () => {
-                        if (orb.active) {
-                            collectXPCallback(this.player, orb);
-                        }
-                    },
-                });
-            }
         });
     }
 }

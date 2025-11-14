@@ -103,7 +103,7 @@ export class WaveSystem {
             // Spawn additional enemies over time (if any)
             if (additionalEnemies > 0) {
                 this.scene.time.addEvent({
-                    delay: 800,
+                    delay: 500, // Reduced from 800ms to 500ms for faster spawning
                     callback: () => {
                         if (this.enemiesSpawned < additionalEnemies) {
                             callbacks.spawnEnemy();
@@ -116,7 +116,7 @@ export class WaveSystem {
         } else {
             // Regular wave - spawn enemies over time
             this.scene.time.addEvent({
-                delay: 800,
+                delay: 500, // Reduced from 800ms to 500ms for faster spawning
                 callback: () => {
                     if (this.enemiesSpawned < this.enemiesThisWave) {
                         callbacks.spawnEnemy();
