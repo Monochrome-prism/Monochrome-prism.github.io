@@ -42,9 +42,7 @@
  * @property {number} [dodgeChance] - Chance to dodge attacks (0-1)
  * @property {number} [lifeSteal] - Flat HP heal per kill
  * @property {number} [lifeStealPercent] - Percent of damage dealt as healing (0-1)
- * @property {number} [thornmail] - Percent of damage reflected (0-1)
- * @property {boolean} [hasRegeneration] - Has HP regeneration upgrade
- * @property {number} [regenRate] - HP regen per 5 seconds
+ * @property {boolean} [hasRegeneration] - Has HP regeneration upgrade (1% max HP every 10s)
  * @property {number} [armorBoostCount] - Number of times Armor Boost upgrade taken (max 2)
  *
  * @property {number} [burnDamageBonus] - Bonus burn damage per tick (stackable)
@@ -60,13 +58,14 @@
  * @property {boolean} [hasChainLightning] - Attacks jump to nearby enemies
  * @property {number} [paralyzeChanceBonus] - Bonus paralyze chance (0-1, stackable)
  * @property {boolean} [hasStaticField] - Paralyzed enemies take DOT
- * @property {number} [surge] - Damage multiplier vs Tank enemies
+ * @property {number} [electricRangeBonus] - Electric attack range multiplier (stackable, Thor's Hammer upgrade)
  *
  * @property {number} [poisonDamageBonus] - Bonus poison starting damage
+ * @property {number} [poisonProcChance] - Poison proc chance (base 30%, stackable with Toxicity)
  * @property {boolean} [hasSporeCloud] - Poison spreads to nearby enemies
  *
  * @property {number} [knockbackBonus] - Knockback distance multiplier
- * @property {number} [sleepDurationBonus] - Bonus sleep duration in ms
+ * @property {number} [maxBoomerangs] - Max simultaneous boomerangs (base 1, stackable with Hurricane)
  *
  * @property {boolean} [hasEarthquake] - Terra knockback stuns enemies
  * @property {boolean} [hasTremor] - Terra knockback affects area
@@ -77,7 +76,6 @@
  *
  * @property {number} [charmChanceBonus] - Bonus charm chance (0-1, stackable)
  * @property {number} [charmDurationBonus] - Bonus charm duration in ms
- * @property {boolean} [hasCosmicDash] - Can teleport with spacebar
  *
  * @property {number} [blindChanceBonus] - Bonus blind chance (0-1, stackable)
  *

@@ -7,6 +7,102 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.2.1] - 2025-11-14
+
+### Fixed - CRITICAL BUG FIXES
+- **Water Freeze Bug**
+  - Fixed freeze status not setting duration on water stream hits
+  - Water freeze now properly freezes enemies for 2 seconds (was broken)
+  - Location: GameScene.js lines 1168-1174
+
+- **Wind Knockback Bug**
+  - Fixed wind boomerangs not applying knockback at all
+  - Boomerang hits now properly knockback enemies
+  - Location: GameScene.js lines 1559-1563
+
+### Changed - BALANCE & MECHANIC UPDATES
+- **Wind Element Rework**
+  - **REMOVED:** Sleep status effect (no longer applied)
+  - Knockback is now the only primary effect (200 power)
+  - Makes wind more focused on positioning/control
+  - **Suffocate → Hurricane:** New stackable upgrade (+1 boomerang per stack)
+  - Base: 1 boomerang, can stack infinitely (1→2→3→4...)
+
+- **Electric Element Upgrade Change**
+  - **Surge → Thor's Hammer:** Replaced "+30% damage vs Tanks" with "+25% attack range"
+  - Stackable: 0%→25%→50%→75%...
+  - Affects both initial target range (125px base) and chain range (75px base)
+  - More universally useful than situational Tank damage
+
+- **Flame Element Buff**
+  - Damage: -5 bonus → +5 bonus (15 dmg → 25 dmg, +25% buff)
+  - Hit range: 100px → 125px (+25%)
+  - Visual range: 150px → 188px (+25%)
+  - Flame was underperforming and needed this buff
+
+- **Nature Element Changes**
+  - **Regeneration Rework:** Already updated in v3.2.0 (1% max HP every 10s)
+  - **Thornmail → Toxicity:** Already replaced in v3.2.0
+  - **Poison Proc Chance:** Base 30% (was 100% in orb hits, now with Toxicity stacks)
+
+- **XP Collection Range Increase**
+  - Increased from 12px → 20px (+67% larger radius)
+  - Makes XP collection more forgiving after v3.2.0 removed auto-collect
+
+### Added
+- **Version Number Display**
+  - Main menu now shows version "v3.2.1" in bottom left corner
+  - Helps players identify which version they're playing
+
+- **Achievement UI Improvements**
+  - Removed redundant "Current: +X% bonus" text on skill tree (description is sufficient)
+  - Fixed overlapping skill level text (moved from X+60 to X+45)
+  - Cleaner, more readable skill tree interface
+
+### Technical
+- **GameScene.js:**
+  - Removed sleep application from wind orb hits (line 861-865)
+  - Added knockback to wind boomerang hits (lines 1559-1563)
+  - Fixed water freeze duration setting (lines 1168-1174)
+  - Buffed flame damage bonus (UpgradeSystem.js line 228)
+  - Buffed flame ranges (lines 990, 1040)
+  - Added electric range bonus scaling (lines 1204-1207, 1254-1257)
+
+- **UpgradeSystem.js:**
+  - Suffocate → Hurricane upgrade (lines 631-646)
+  - Surge → Thor's Hammer upgrade (lines 554-569)
+  - Hurricane uses maxBoomerangs player property
+
+- **EnemySystem.js:**
+  - XP orb collision radius: 12px → 20px (line 607)
+
+- **SkillTreeScene.js:**
+  - Removed bonus text display (lines 93-94)
+  - Fixed level text positioning (line 112)
+
+- **CharacterSelectScene.js:**
+  - Added version number display (lines 89-96)
+
+- **game-types.js (JSDoc):**
+  - Added `maxBoomerangs` property
+  - Added `electricRangeBonus` property
+  - Added `poisonProcChance` property
+  - Removed `hasCosmicDash` property
+  - Removed `thornmail` property
+  - Removed `sleepDurationBonus` property
+  - Removed `surge` property
+  - Removed `regenRate` property
+  - Updated `hasRegeneration` description
+
+### Documentation
+- Version bumped: 3.2.0 → 3.2.1
+- Updated MagicAffinityBible.md with all element changes
+- Updated all upgrade descriptions
+- Updated XP collection mechanics
+- Updated Flame, Electric, Wind, Nature sections
+
+---
+
 ## [3.2.0] - 2025-11-14
 
 ### Changed - BALANCE & PROGRESSION UPDATES

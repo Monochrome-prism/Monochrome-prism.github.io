@@ -859,11 +859,6 @@ class GameScene extends Phaser.Scene {
                     break;
 
                 case 'wind':
-                    // 50% chance to sleep for 2 seconds (+ bonuses)
-                    if (Math.random() < 0.50) {
-                        effects.sleep.active = true;
-                        effects.sleep.duration = 2000 + (this.player.sleepDurationBonus || 0);
-                    }
                     // Always apply knockback (+ bonuses)
                     const knockbackPower = 200 * (this.player.knockbackBonus || 1);
                     applyKnockback(enemy.body, orb.x, orb.y, enemy.x, enemy.y, knockbackPower);
@@ -992,7 +987,7 @@ class GameScene extends Phaser.Scene {
 
             // Create wide cone spray effect
             const coneAngleSpread = Math.PI / 3; // 60 degree spread
-            const flameRange = 150;
+            const flameRange = 188; // BUFFED by 25% (was 150)
             const fireAngles = [forwardAngle, backwardAngle]; // Shoot BOTH directions
 
             // Track which enemies we've already hit (prevent double damage)
@@ -1041,8 +1036,8 @@ class GameScene extends Phaser.Scene {
                         enemy.x, enemy.y
                     );
 
-                    // Check if in cone
-                    if (dist < 100 && angleDiff < Math.PI / 3) {
+                    // Check if in cone - BUFFED by 25% (was 100)
+                    if (dist < 125 && angleDiff < Math.PI / 3) {
                         hitEnemies.add(enemy); // Mark as hit to prevent double damage
 
                         // Deal damage with crit check and lifesteal
@@ -1170,10 +1165,12 @@ class GameScene extends Phaser.Scene {
                         this.applyDamage(enemy, damage, 0x4169e1);
                         soundFX.play("hit");
 
-                        // Apply freeze effect (50% chance)
+                        // Apply freeze effect (50% chance) - FIX: Was missing duration!
                         const freezeChance = 0.50 + (this.player.freezeChanceBonus || 0);
                         if (Math.random() < freezeChance && enemy.statusEffects) {
                             enemy.statusEffects.freeze.active = true;
+                            const baseDuration = 2000;
+                            enemy.statusEffects.freeze.duration = baseDuration * (this.player.freezeDurationBonus || 1);
                         }
 
                         // Flash enemy
@@ -1204,9 +1201,10 @@ class GameScene extends Phaser.Scene {
         if (time - this.player.lastLightningTime >= 1000) {
             this.player.lastLightningTime = time;
 
-            // Find nearest enemy within reduced range (125 pixels)
+            // Find nearest enemy within reduced range (125 pixels base + Thor's Hammer bonus)
             let nearestEnemy = null;
-            let nearestDistance = 125; // Reduced range (50% of original)
+            const baseRange = 125;
+            let nearestDistance = baseRange * (1 + (this.player.electricRangeBonus || 0));
 
             this.enemies.children.entries.forEach((enemy) => {
                 if (!enemy.active) return;
@@ -1253,9 +1251,10 @@ class GameScene extends Phaser.Scene {
                         this.killEnemy(currentEnemy);
                     }
 
-                    // Find next nearest enemy to chain to (from current enemy's position)
+                    // Find next nearest enemy to chain to (from current enemy's position + Thor's Hammer bonus)
                     let nextEnemy = null;
-                    let nextDistance = 75; // Short range for chain (30% of original)
+                    const baseChainRange = 75;
+                    let nextDistance = baseChainRange * (1 + (this.player.electricRangeBonus || 0));
 
                     this.enemies.children.entries.forEach((enemy) => {
                         if (!enemy.active || hitEnemies.has(enemy)) return;
@@ -1445,8 +1444,9 @@ class GameScene extends Phaser.Scene {
             this.player.lastBoomerangTime = time;
         }
 
-        // Fire boomerang every 1 second (allows up to 3 simultaneous)
-        if (time - this.player.lastBoomerangTime >= 1000 && this.windBoomerangs.length < 3) {
+        // Fire boomerang every 1 second (Hurricane upgrade increases max simultaneous boomerangs)
+        const maxBoomerangs = this.player.maxBoomerangs || 1;
+        if (time - this.player.lastBoomerangTime >= 1000 && this.windBoomerangs.length < maxBoomerangs) {
             this.player.lastBoomerangTime = time;
 
             // Check if there's already a targeting boomerang active
@@ -1560,6 +1560,12 @@ class GameScene extends Phaser.Scene {
                         // Deal damage with crit check and lifesteal
                         const damage = this.player.damage;
                         this.applyDamage(enemy, damage, 0xffffff);
+
+                        // Apply knockback (+ bonuses) - FIX: Was missing!
+                        if (enemy.body) {
+                            const knockbackPower = 200 * (this.player.knockbackBonus || 1);
+                            applyKnockback(enemy.body, boomerang.x, boomerang.y, enemy.x, enemy.y, knockbackPower);
+                        }
 
                         // Flash enemy
                         enemy.setAlpha(0.5);

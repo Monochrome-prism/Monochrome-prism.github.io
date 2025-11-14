@@ -604,7 +604,7 @@ export class EnemySystem {
         orb.fillCircle(-2, -2, 2);
 
         this.scene.physics.add.existing(orb);
-        orb.body.setCircle(12); // Increased from 8 to 12 (150% of original for better collection range)
+        orb.body.setCircle(20); // Increased from 12 to 20 for even better collection range
         orb.setDepth(10); // Behind UI
         xpOrbs.add(orb);
 
