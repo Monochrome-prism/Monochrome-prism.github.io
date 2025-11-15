@@ -100,14 +100,41 @@ export class CharacterSelectScene extends Phaser.Scene {
                 .setOrigin(0.5);
         }
 
-        // Version number (bottom left)
+        // Version number (bottom left) with patch history button (v3.4.8)
         this.add
-            .text(10, 590, "v3.4.7", {
+            .text(10, 590, "v3.4.8", {
                 fontSize: "14px",
                 fill: "#666666",
                 fontFamily: "Courier New",
             })
             .setOrigin(0, 1);
+
+        // Patch history button (scroll icon) next to version
+        const patchHistoryIcon = this.add
+            .text(65, 590, "📜", {
+                fontSize: "18px"
+            })
+            .setOrigin(0, 1)
+            .setInteractive()
+            .setAlpha(0.7);
+
+        patchHistoryIcon.on("pointerover", () => {
+            patchHistoryIcon.setAlpha(1);
+            patchHistoryIcon.setScale(1.2);
+            this.input.setDefaultCursor("pointer");
+            soundFX.play("hover");
+        });
+
+        patchHistoryIcon.on("pointerout", () => {
+            patchHistoryIcon.setAlpha(0.7);
+            patchHistoryIcon.setScale(1);
+            this.input.setDefaultCursor("default");
+        });
+
+        patchHistoryIcon.on("pointerdown", () => {
+            soundFX.play("select");
+            this.scene.start("PatchHistoryScene");
+        });
 
         // Fullscreen button
         this.createFullscreenButton();

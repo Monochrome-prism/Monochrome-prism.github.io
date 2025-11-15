@@ -1,6 +1,6 @@
 # Branded For Death: Magic Affinity - Game Design Document
 
-**Version:** 3.4.7
+**Version:** 3.4.8
 **Last Updated:** November 15, 2025
 **Status:** Complete Phase 3 - Bug Fixes, Balance, and Polish
 
