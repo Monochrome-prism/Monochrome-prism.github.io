@@ -20,8 +20,10 @@ export class UISystem {
         this.levelText = null;
         this.hpBar = null;
         this.hpBarBg = null;
+        this.hpValueText = null; // HP numeric display (v3.4.5)
         this.xpBar = null;
         this.xpBarBg = null;
+        this.xpValueText = null; // XP numeric display (v3.4.5)
         this.waveText = null;
         this.scoreText = null;
         this.timeText = null;
@@ -95,6 +97,15 @@ export class UISystem {
         this.hpBar = this.scene.add.graphics();
         this.hpBar.setDepth(1001);
 
+        // HP numeric display (v3.4.5)
+        this.hpValueText = this.scene.add
+            .text(305, 650, "50/50", {
+                fontSize: `${Math.floor(10 * scale)}px`,
+                fill: "#ffffff",
+                fontFamily: "Courier New",
+            })
+            .setDepth(1001);
+
         // XP Bar
         this.scene.add
             .text(20, 668, "XP", {
@@ -111,6 +122,15 @@ export class UISystem {
 
         this.xpBar = this.scene.add.graphics();
         this.xpBar.setDepth(1001);
+
+        // XP numeric display (v3.4.5)
+        this.xpValueText = this.scene.add
+            .text(305, 668, "0/50", {
+                fontSize: `${Math.floor(10 * scale)}px`,
+                fill: "#ffffff",
+                fontFamily: "Courier New",
+            })
+            .setDepth(1001);
 
         // Wave and Score info (bottom right)
         const rightUIGraphics = this.scene.add.graphics();
@@ -209,6 +229,9 @@ export class UISystem {
 
         this.hpBar.fillStyle(color, 1);
         this.hpBar.fillRect(50, 651, 250 * this.displayedHealthPercent, 8);
+
+        // Update numeric HP display (v3.4.5)
+        this.hpValueText.setText(`${Math.floor(player.health)}/${player.maxHealth}`);
     }
 
     /**
@@ -236,6 +259,9 @@ export class UISystem {
         this.xpBar.clear();
         this.xpBar.fillStyle(0x4169e1, 1);
         this.xpBar.fillRect(50, 669, 250 * this.displayedXPPercent, 8);
+
+        // Update numeric XP display (v3.4.5)
+        this.xpValueText.setText(`${Math.floor(player.xp)}/${player.xpToNext}`);
     }
 
     /**
