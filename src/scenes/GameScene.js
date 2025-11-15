@@ -2948,6 +2948,18 @@ class GameScene extends Phaser.Scene {
             this.player.body.setDrag(500); // Normal drag
         }
 
+        // Player animations (v3.4.2)
+        if (moveX !== 0 || moveY !== 0) {
+            // Movement lean: 10° rotation in direction of travel
+            const angle = Math.atan2(moveY, moveX);
+            this.player.rotation = angle * 0.174; // 10° = 0.174 radians, scaled by direction
+        } else {
+            // Idle bobbing: ±2px gentle vertical motion
+            const bobOffset = Math.sin(time / 500) * 2; // 500ms cycle = 2 bobs per second
+            this.player.y = this.player.body.y + bobOffset;
+            this.player.rotation = 0; // Reset rotation when idle
+        }
+
         // Update falling leaves (fall season)
         if (this.fallingLeaves) {
             this.fallingLeaves.forEach((leaf) => {
@@ -3339,6 +3351,15 @@ class GameScene extends Phaser.Scene {
                     damage,
                 );
                 soundFX.play("playerHit");
+
+                // Screen shake (3px, 200ms) (v3.4.2)
+                this.cameras.main.shake(200, 0.00375);
+
+                // Red flash on player (v3.4.2)
+                this.player.setTint(0xff0000);
+                this.time.delayedCall(100, () => {
+                    if (this.player.active) this.player.clearTint();
+                });
 
                 // Flash hazard
                 hazard.setAlpha(0.5);
@@ -4103,6 +4124,15 @@ class GameScene extends Phaser.Scene {
         // Play hit sound
         soundFX.play("playerHit");
 
+        // Screen shake (3px, 200ms) (v3.4.2)
+        this.cameras.main.shake(200, 0.00375);
+
+        // Red flash on player (v3.4.2)
+        this.player.setTint(0xff0000);
+        this.time.delayedCall(100, () => {
+            if (this.player.active) this.player.clearTint();
+        });
+
         // Grant invulnerability frames
         this.player.invulnerable = true;
         this.time.delayedCall(500, () => {
@@ -4214,8 +4244,8 @@ class GameScene extends Phaser.Scene {
         if (isCrit) {
             this.showDamageNumber(enemy.x, enemy.y - 10, `CRIT! ${finalDamage}`, 0xFFD700, true);
 
-            // Create particle burst for critical strike
-            for (let i = 0; i < 8; i++) {
+            // Create particle burst for critical strike (10 star-shaped particles) (v3.4.2)
+            for (let i = 0; i < 10; i++) {
                 const particle = this.add.graphics();
                 particle.x = enemy.x;
                 particle.y = enemy.y;
@@ -4223,11 +4253,22 @@ class GameScene extends Phaser.Scene {
                 const colors = [0xffff00, 0xffa500, 0xff6347];
                 const color = colors[i % colors.length];
 
+                // Draw 5-pointed star (v3.4.2)
                 particle.fillStyle(color, 1);
-                particle.fillCircle(0, 0, 3);
+                particle.beginPath();
+                for (let j = 0; j < 5; j++) {
+                    const starAngle = (j * 4 * Math.PI) / 5 - Math.PI / 2;
+                    const radius = j % 2 === 0 ? 6 : 2.5;
+                    const sx = Math.cos(starAngle) * radius;
+                    const sy = Math.sin(starAngle) * radius;
+                    if (j === 0) particle.moveTo(sx, sy);
+                    else particle.lineTo(sx, sy);
+                }
+                particle.closePath();
+                particle.fillPath();
                 particle.setDepth(50);
 
-                const angle = (i / 8) * Math.PI * 2;
+                const angle = (i / 10) * Math.PI * 2;
                 const distance = Phaser.Math.Between(20, 35);
 
                 this.tweens.add({
@@ -4407,6 +4448,15 @@ class GameScene extends Phaser.Scene {
         // Play player hit sound
         soundFX.play("playerHit");
 
+        // Screen shake (3px, 200ms) (v3.4.2)
+        this.cameras.main.shake(200, 0.00375);
+
+        // Red flash on player (v3.4.2)
+        this.player.setTint(0xff0000);
+        this.time.delayedCall(100, () => {
+            if (this.player.active) this.player.clearTint();
+        });
+
         // Invulnerability frames
         this.player.invulnerable = true;
         this.player.invulnerableTime = 1000;
@@ -4422,9 +4472,6 @@ class GameScene extends Phaser.Scene {
             Math.cos(angle) * 200,
             Math.sin(angle) * 200,
         );
-
-        // Camera shake
-        this.cameras.main.shake(100, 0.005);
 
         // Check death
         if (this.player.health <= 0) {

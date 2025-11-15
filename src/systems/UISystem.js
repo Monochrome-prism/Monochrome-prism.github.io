@@ -30,6 +30,15 @@ export class UISystem {
         this.bossHealthBarBg = null;
         this.bossNameText = null;
         this.bossHealthBar = null;
+
+        // Bar animation tracking (v3.4.2)
+        this.displayedHealthPercent = 1.0;
+        this.displayedXPPercent = 0;
+        this.lastLowHPPulse = 0; // Track pulse timing
+
+        // Shine overlays (v3.4.2)
+        this.hpShine = null;
+        this.xpShine = null;
     }
 
     /**
@@ -82,6 +91,12 @@ export class UISystem {
             })
             .setDepth(1001);
 
+        // HP Bar drop shadow (v3.4.2)
+        const hpShadow = this.scene.add.graphics();
+        hpShadow.fillStyle(0x000000, 0.5);
+        hpShadow.fillRect(52, 653, 250, 8);
+        hpShadow.setDepth(999);
+
         this.hpBarBg = this.scene.add.graphics();
         this.hpBarBg.fillStyle(0x8b0000, 1);
         this.hpBarBg.fillRect(50, 651, 250, 8);
@@ -89,6 +104,10 @@ export class UISystem {
 
         this.hpBar = this.scene.add.graphics();
         this.hpBar.setDepth(1001);
+
+        // HP Bar shine overlay (v3.4.2 - animated)
+        this.hpShine = this.scene.add.graphics();
+        this.hpShine.setDepth(1002);
 
         // XP Bar
         this.scene.add
@@ -99,6 +118,12 @@ export class UISystem {
             })
             .setDepth(1001);
 
+        // XP Bar drop shadow (v3.4.2)
+        const xpShadow = this.scene.add.graphics();
+        xpShadow.fillStyle(0x000000, 0.5);
+        xpShadow.fillRect(52, 671, 250, 8);
+        xpShadow.setDepth(999);
+
         this.xpBarBg = this.scene.add.graphics();
         this.xpBarBg.fillStyle(0x00008b, 1);
         this.xpBarBg.fillRect(50, 669, 250, 8);
@@ -106,6 +131,10 @@ export class UISystem {
 
         this.xpBar = this.scene.add.graphics();
         this.xpBar.setDepth(1001);
+
+        // XP Bar shine overlay (v3.4.2 - animated)
+        this.xpShine = this.scene.add.graphics();
+        this.xpShine.setDepth(1002);
 
         // Wave and Score info (bottom right)
         const rightUIGraphics = this.scene.add.graphics();
@@ -171,15 +200,52 @@ export class UISystem {
      * @returns {void}
      */
     updateHealthBar(player) {
+        const targetHealthPercent = player.health / player.maxHealth;
+
+        // Smooth lerp animation (v3.4.2 - lerp speed 0.2)
+        this.displayedHealthPercent += (targetHealthPercent - this.displayedHealthPercent) * 0.2;
+
+        // Clamp to avoid overshooting
+        if (Math.abs(this.displayedHealthPercent - targetHealthPercent) < 0.001) {
+            this.displayedHealthPercent = targetHealthPercent;
+        }
+
+        // Clear and redraw
         this.hpBar.clear();
-        const healthPercent = player.health / player.maxHealth;
 
         let color = 0xff0000;
-        if (healthPercent > 0.5) color = 0x00ff00;
-        else if (healthPercent > 0.25) color = 0xffa500;
+        if (this.displayedHealthPercent > 0.5) color = 0x00ff00;
+        else if (this.displayedHealthPercent > 0.25) color = 0xffa500;
+
+        // Low HP pulse: Flash red when < 25% HP every 1000ms (v3.4.2)
+        const now = this.scene.time.now;
+        if (this.displayedHealthPercent < 0.25) {
+            if (now - this.lastLowHPPulse > 1000) {
+                this.lastLowHPPulse = now;
+            }
+            const pulseProgress = (now - this.lastLowHPPulse) / 1000;
+            if (pulseProgress < 0.2) {
+                // Flash red for 200ms
+                this.hpBar.fillStyle(0xff0000, 1);
+                this.hpBar.fillRect(50, 651, 250, 8); // Full width flash
+            }
+        }
 
         this.hpBar.fillStyle(color, 1);
-        this.hpBar.fillRect(50, 651, 250 * healthPercent, 8);
+        this.hpBar.fillRect(50, 651, 250 * this.displayedHealthPercent, 8);
+
+        // Animated shine overlay (v3.4.2)
+        this.hpShine.clear();
+        const shineOffset = (now / 30) % 300; // Move across bar every ~5s
+        const shineGradient = this.hpShine.createLinearGradient(
+            shineOffset - 20, 0,
+            shineOffset + 20, 0
+        );
+        shineGradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+        shineGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.4)');
+        shineGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        this.hpShine.fillStyle(shineGradient);
+        this.hpShine.fillRect(50, 651, 250 * this.displayedHealthPercent, 8);
     }
 
     /**
@@ -188,11 +254,39 @@ export class UISystem {
      * @returns {void}
      */
     updateXPBar(player) {
-        this.xpBar.clear();
-        const xpPercent = player.xp / player.xpToNext;
+        const targetXPPercent = player.xp / player.xpToNext;
 
+        // Smooth lerp animation (v3.4.2 - lerp speed 0.2)
+        this.displayedXPPercent += (targetXPPercent - this.displayedXPPercent) * 0.2;
+
+        // Clamp to avoid overshooting
+        if (Math.abs(this.displayedXPPercent - targetXPPercent) < 0.001) {
+            this.displayedXPPercent = targetXPPercent;
+        }
+
+        // Reset on level up (when xp becomes 0)
+        if (targetXPPercent < 0.1 && this.displayedXPPercent > 0.5) {
+            this.displayedXPPercent = 0;
+        }
+
+        // Clear and redraw
+        this.xpBar.clear();
         this.xpBar.fillStyle(0x4169e1, 1);
-        this.xpBar.fillRect(50, 669, 250 * xpPercent, 8);
+        this.xpBar.fillRect(50, 669, 250 * this.displayedXPPercent, 8);
+
+        // Animated shine overlay (v3.4.2)
+        this.xpShine.clear();
+        const now = this.scene.time.now;
+        const shineOffset = (now / 30) % 300; // Move across bar every ~5s
+        const shineGradient = this.xpShine.createLinearGradient(
+            shineOffset - 20, 0,
+            shineOffset + 20, 0
+        );
+        shineGradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+        shineGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.4)');
+        shineGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        this.xpShine.fillStyle(shineGradient);
+        this.xpShine.fillRect(50, 669, 250 * this.displayedXPPercent, 8);
     }
 
     /**
