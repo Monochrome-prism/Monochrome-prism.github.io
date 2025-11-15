@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.4.7] - 2025-11-15
+
+### Fixed - CRITICAL ACHIEVEMENT BUG
+
+**waveReached Always Undefined (ROOT CAUSE):**
+- **CRITICAL FIX: Fixed the actual root cause of achievement tracking failure**
+  - Issue: `this.currentWave` doesn't exist in GameScene - it's in WaveSystem
+  - Result: `gameState.waveReached` was always `undefined`
+  - Impact: ALL wave-based achievements couldn't unlock (Element Masters, Untouchable, Speed Demon)
+  - Example console output: `waveReached=undefined, element=shadow`
+  - Fix: Changed to `this.waveSystem.getCurrentWave()`
+  - Locations: GameScene.js lines 4434 (completeWave), 4495 (gameOver)
+
+**Why Achievements Weren't Working:**
+- v3.4.6 fixed the migration system, BUT the real bug was waveReached=undefined
+- ProgressionSystem checks like `if (runData.waveReached >= 11)` always failed
+- First Blood worked because it tracks lifetime kills, not wave-based
+
+**Impact:**
+- Players can now unlock Element Master achievements (Reach Wave 11 with element)
+- Untouchable achievement now tracks properly (Reach Wave 6 without damage)
+- Speed Demon achievement now works (Reach Wave 10 in under 10 min)
+
+### Documentation
+
+**Updated MagicAffinityBible.md:**
+- Updated version to 3.4.7
+
+---
+
 ## [3.4.6] - 2025-11-15
 
 ### Fixed - ACHIEVEMENT SYSTEM BUG FIXES
