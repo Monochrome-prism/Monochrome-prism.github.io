@@ -1,6 +1,6 @@
 # Branded For Death: Magic Affinity - Game Design Document
 
-**Version:** 3.4.4
+**Version:** 3.4.5
 **Last Updated:** November 15, 2025
 **Status:** Complete Phase 3 - Bug Fixes, Balance, and Polish
 
@@ -195,7 +195,7 @@ At level 1, choose one of 10 elemental types. Each element has:
 
 **Upgrades:**
 1. **Inferno Blast** - +2 burn damage per tick (stackable: 3→5→7→9...)
-2. **Wildfire** - Burn spreads to nearby enemies (60px radius)
+2. **Wildfire** - Burn spreads to nearby enemies (60px radius) (NON-STACKABLE) (v3.4.5)
 3. **Molten Core** - +25% damage to burning enemies
 4. **Firestorm** - +2 seconds burn duration (3→5 seconds)
 
@@ -252,19 +252,18 @@ At level 1, choose one of 10 elemental types. Each element has:
 ---
 
 ### 💨 WIND - Control & Knockback
-**Primary Effect:** Knockback (200 power, 50px distance) - 25% base chance (v3.4.3)
+**Primary Effect:** Knockback (600 power, 150px distance) - 25% base chance (v3.4.5)
 **Base Damage Bonus:** +10 damage (30 total)
 **Color:** Light cyan (#E0FFFF)
 **Orbs:** 0 (removed for boomerang system)
 **Attack Pattern:** Throwing boomerangs that return (1 per second, max 3 simultaneous base)
-- 1st boomerang targets nearest enemy
-- 2nd and 3rd boomerangs shoot random directions
-- 25% chance per hit to apply knockback (v3.4.3)
+- **ALL boomerangs target nearest enemy** (each independently finds closest target) (v3.4.5)
+- 25% chance per hit to apply knockback
 
 **Upgrades:**
 1. **Gale Force** - +50% knockback distance
 2. **Zephyr** - Stackable (max 4x): +25% knockback chance (25%→50%→75%→100%) (v3.4.1)
-3. **Cyclone** - Knockback affects 3 enemies (closest)
+3. **Swift Foot** 👟 - +25% movement speed (INFINITE stacking) (v3.4.5)
 4. **Hurricane** - +1 additional boomerang (stackable: 3→4→5→6...)
 
 ---
@@ -275,7 +274,7 @@ At level 1, choose one of 10 elemental types. Each element has:
 **Color:** Brown (#8B4513)
 **Orbs:** 0 (removed for stone block system)
 **Attack Pattern:** Stone blocks spawn randomly around player
-- Blocks spawn every 2 seconds
+- Blocks spawn every 1.333 seconds (50% faster fire rate) (v3.4.5)
 - **Spawn Phase:** 7.5 seconds (deals damage to enemies on contact)
 - **Static Phase:** 10 seconds (blocks enemy movement)
 - **Total Duration:** 17.5 seconds

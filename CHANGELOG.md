@@ -7,6 +7,81 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.4.5] - 2025-11-15
+
+### Fixed - CRITICAL UI BUG
+
+**HP/XP Bar Visual Accuracy:**
+- **CRITICAL FIX: HP/XP bars now show actual values instead of lerped values**
+  - Issue: v3.4.2 lerp animation caused bars to lag behind actual health/XP
+  - Example: Player at 0 HP showed bar 80% full due to lerp animation
+  - Impact: Players thought they had more HP than they actually did
+  - Fix: Removed lerp animation entirely, bars now use `player.health / player.maxHealth` directly
+  - Discovery: This meant damage scaling was CORRECT - visual bug created false impression
+  - Location: UISystem.js lines 205-252
+
+**Added Numeric HP/XP Displays:**
+- **Added numeric text displays showing "50/50" format for HP and XP**
+  - 14px font size, bold, black stroke (thickness 3)
+  - Positioned at (220, 649) for HP, (220, 667) for XP
+  - Updates in real-time alongside bars
+  - Locations: UISystem.js lines 23, 26, 99-111, 130-141, 234, 253
+
+**Healing Visual Accuracy:**
+- **Fixed healing numbers to show ACTUAL heal amount, not potential**
+  - Issue: Wave heal showed "+25" even if player only needed +2 HP to reach max
+  - Fix: Calculate `actualHeal = health_after - health_before`, display that value
+  - Impact: Healing feedback now accurately reflects what happened
+  - Location: GameScene.js lines 4469-4476
+
+### Changed - BALANCE ADJUSTMENTS & UPGRADES
+
+**Swift Foot Replaces Cyclone (Wind Element):**
+- **Replaced useless "Cyclone" upgrade with "Swift Foot" 👟**
+  - Cyclone: Wind doesn't use orbs, so orb rotation speed was useless
+  - Swift Foot: +25% movement speed per stack (INFINITE stacking)
+  - Fits Wind's mobility theme better
+  - Tracks stacks dynamically in description ("Swift Foot x3: +25% speed")
+  - Location: UpgradeSystem.js lines 655-674
+
+**Wind Boomerang Targeting:**
+- **ALL Wind boomerangs now auto-target nearest enemy**
+  - Previous: Only 1st boomerang targeted, others flew randomly
+  - Now: Each boomerang independently finds and targets nearest enemy
+  - Since fire rate is slow (1/sec), targets naturally differ as enemies move
+  - Removed `isTargeting` property from boomerang objects
+  - Locations: GameScene.js lines 1460-1497
+
+**Wildfire Non-Stackable:**
+- **Wildfire upgrade can now only be picked once**
+  - Burn spread mechanic doesn't benefit from multiple picks
+  - Added filter check to prevent Wildfire from appearing after first selection
+  - Location: UpgradeSystem.js lines 1008-1011
+
+**Wind Knockback Buff:**
+- **Tripled Wind knockback distance (200 → 600 power)**
+  - Applies to both orb hits and boomerang hits
+  - Formula: `600 * (this.player.knockbackBonus || 1)`
+  - Locations: GameScene.js lines 871, 1562
+
+**Terra Fire Rate Buff:**
+- **Increased Terra wall spawn rate by 50%**
+  - Cooldown: 2000ms → 1333ms (walls spawn 1.5x faster)
+  - Calculation: 2000 / 1.5 = 1333ms
+  - Location: GameScene.js line 1617
+
+### Documentation
+
+**Updated MagicAffinityBible.md:**
+- Updated Wind element (knockback 600 power, all boomerangs target)
+- Updated Swift Foot upgrade (replaces Cyclone)
+- Updated Terra element (1333ms fire rate)
+- Updated Wildfire upgrade (non-stackable)
+- Updated wave completion heal (25% max HP, confirmed accurate)
+- Updated version to 3.4.5
+
+---
+
 ## [3.4.4] - 2025-11-15
 
 ### Fixed - BUG FIXES & QOL

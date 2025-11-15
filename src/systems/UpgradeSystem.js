@@ -653,11 +653,23 @@ export class UpgradeSystem {
                     }
                 },
                 {
-                    name: "Cyclone",
-                    icon: "🌀",
-                    description: "Orb rotation speed +30%",
+                    name: "Swift Foot",
+                    icon: "👟",
+                    description: "+25% Movement Speed",
+                    upgradeKey: "swiftFoot",
+                    getDescription: () => {
+                        const stacks = this.player.upgradeStacks?.swiftFoot || 0;
+                        if (stacks === 0) {
+                            return `Swift Foot: +25% speed`;
+                        } else {
+                            return `Swift Foot x${stacks + 1}: +25% speed`;
+                        }
+                    },
                     apply: () => {
-                        this.player.orbSpeed *= 1.3;
+                        if (!this.player.upgradeStacks) this.player.upgradeStacks = {};
+                        this.player.upgradeStacks.swiftFoot = (this.player.upgradeStacks.swiftFoot || 0) + 1;
+                        this.player.speed *= 1.25;
+                        console.log(`Swift Foot x${this.player.upgradeStacks.swiftFoot}! Speed: ${this.player.speed}`);
                     }
                 },
                 {
@@ -991,6 +1003,10 @@ export class UpgradeSystem {
         const availableUpgrades = allUpgrades.filter(upgrade => {
             // Void Clone can only be selected once
             if (upgrade.name === "Void Clone" && this.player.hasVoidClone) {
+                return false;
+            }
+            // Wildfire can only be selected once (v3.4.5)
+            if (upgrade.name === "Wildfire" && this.player.hasWildfire) {
                 return false;
             }
             // Armor Boost can only be selected twice

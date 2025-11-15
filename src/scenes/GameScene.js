@@ -867,8 +867,8 @@ class GameScene extends Phaser.Scene {
                     break;
 
                 case 'wind':
-                    // Always apply knockback (+ bonuses)
-                    const knockbackPower = 200 * (this.player.knockbackBonus || 1);
+                    // Always apply knockback (+ bonuses) (v3.4.5: 600 base power)
+                    const knockbackPower = 600 * (this.player.knockbackBonus || 1);
                     applyKnockback(enemy.body, orb.x, orb.y, enemy.x, enemy.y, knockbackPower);
                     break;
 
@@ -1457,40 +1457,29 @@ class GameScene extends Phaser.Scene {
         if (time - this.player.lastBoomerangTime >= 1000 && this.windBoomerangs.length < maxBoomerangs) {
             this.player.lastBoomerangTime = time;
 
-            // Check if there's already a targeting boomerang active
-            const hasTargetingBoomerang = this.windBoomerangs.some(b => b.isTargeting);
-
-            let angle;
-            let isTargeting = false;
-            // If no targeting boomerang exists, make this one target the nearest enemy
-            if (!hasTargetingBoomerang) {
-                isTargeting = true;
-                // Find nearest enemy to target
-                let nearestEnemy = null;
-                let nearestDistance = Infinity;
-                this.enemies.children.entries.forEach((enemy) => {
-                    if (!enemy.active) return;
-                    const dist = Phaser.Math.Distance.Between(
-                        this.player.x, this.player.y,
-                        enemy.x, enemy.y
-                    );
-                    if (dist < nearestDistance) {
-                        nearestDistance = dist;
-                        nearestEnemy = enemy;
-                    }
-                });
-
-                // Determine angle - aim at nearest enemy, or random if no enemies
-                if (nearestEnemy) {
-                    angle = Phaser.Math.Angle.Between(
-                        this.player.x, this.player.y,
-                        nearestEnemy.x, nearestEnemy.y
-                    );
-                } else {
-                    angle = Math.random() * Math.PI * 2;
+            // All boomerangs target nearest enemy (v3.4.5)
+            let nearestEnemy = null;
+            let nearestDistance = Infinity;
+            this.enemies.children.entries.forEach((enemy) => {
+                if (!enemy.active) return;
+                const dist = Phaser.Math.Distance.Between(
+                    this.player.x, this.player.y,
+                    enemy.x, enemy.y
+                );
+                if (dist < nearestDistance) {
+                    nearestDistance = dist;
+                    nearestEnemy = enemy;
                 }
+            });
+
+            // Determine angle - aim at nearest enemy, or random if no enemies
+            let angle;
+            if (nearestEnemy) {
+                angle = Phaser.Math.Angle.Between(
+                    this.player.x, this.player.y,
+                    nearestEnemy.x, nearestEnemy.y
+                );
             } else {
-                // 2nd and 3rd boomerangs go random direction
                 angle = Math.random() * Math.PI * 2;
             }
 
@@ -1504,8 +1493,7 @@ class GameScene extends Phaser.Scene {
                 maxDistance: this.scale.width / 3, // 1/3 screen distance
                 graphic: null,
                 hitEnemies: new Set(), // Track hit enemies for this boomerang
-                spawnTime: time,
-                isTargeting: isTargeting // Track if this boomerang targets enemies
+                spawnTime: time
             };
 
             // Create boomerang visual (grey curved shape)
@@ -1569,9 +1557,9 @@ class GameScene extends Phaser.Scene {
                         const damage = this.player.damage;
                         this.applyDamage(enemy, damage, 0xffffff);
 
-                        // Apply knockback based on chance (v3.4.1: 25% base, +25% per Zephyr stack)
+                        // Apply knockback based on chance (v3.4.5: 600 base power, 25% base chance, +25% per Zephyr stack)
                         if (enemy.body && this.player.knockbackChance && Math.random() < this.player.knockbackChance) {
-                            const knockbackPower = 200 * (this.player.knockbackBonus || 1);
+                            const knockbackPower = 600 * (this.player.knockbackBonus || 1);
                             applyKnockback(enemy.body, boomerang.x, boomerang.y, enemy.x, enemy.y, knockbackPower);
                             // Set knockback timer to prevent AI from overriding velocity (300ms)
                             enemy.knockbackUntil = time + 300;
@@ -1625,8 +1613,8 @@ class GameScene extends Phaser.Scene {
             this.player.lastWallSpawnTime = time;
         }
 
-        // Spawn wall every 2 seconds
-        if (time - this.player.lastWallSpawnTime >= 2000) {
+        // Spawn wall every 1.33 seconds (v3.4.5: +50% fire rate)
+        if (time - this.player.lastWallSpawnTime >= 1333) {
             this.player.lastWallSpawnTime = time;
 
             // Random distance between 80-200 pixels
@@ -4478,12 +4466,14 @@ class GameScene extends Phaser.Scene {
             this.playerWalls = [];
         }
 
-        // Heal 25% of max HP on wave completion
+        // Heal 25% of max HP on wave completion (v3.4.5: show actual heal, not potential)
         const healAmount = Math.floor(this.player.maxHealth * 0.25);
+        const oldHealth = this.player.health;
         this.player.health = Math.min(this.player.maxHealth, this.player.health + healAmount);
+        const actualHeal = this.player.health - oldHealth;
         this.uiSystem.updateHealthBar(this.player);
-        // Show green healing number at player position
-        this.showDamageNumber(this.player.x, this.player.y - 20, `+${healAmount}`, 0x00ff88);
+        // Show actual healing amount (not potential)
+        this.showDamageNumber(this.player.x, this.player.y - 20, `+${actualHeal}`, 0x00ff88);
 
         // Complete wave and auto-start next wave after 2 seconds
         this.waveSystem.completeWave();
