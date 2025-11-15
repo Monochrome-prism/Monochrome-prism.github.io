@@ -6,7 +6,7 @@
  */
 
 const STORAGE_KEY = 'magicAffinityProgression';
-const CURRENT_VERSION = '3.4.7';  // Game version
+const CURRENT_VERSION = '3.4.8';  // Game version
 const DATA_VERSION = '1.0.0';     // Data structure version (only change when structure changes)
 
 export class PersistenceSystem {

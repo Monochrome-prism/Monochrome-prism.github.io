@@ -2,6 +2,7 @@ import { CharacterSelectScene } from './scenes/CharacterSelectScene.js';
 import { SettingsScene } from './scenes/SettingsScene.js';
 import AchievementScene from './scenes/AchievementScene.js';
 import SkillTreeScene from './scenes/SkillTreeScene.js';
+import PatchHistoryScene from './scenes/PatchHistoryScene.js';
 import { GameScene } from './scenes/GameScene.js';
 import { GameOverScene } from './scenes/GameOverScene.js';
 
@@ -34,7 +35,7 @@ const config = {
         },
         fullscreenTarget: "game-container",
     },
-    scene: [CharacterSelectScene, SettingsScene, AchievementScene, SkillTreeScene, GameScene, GameOverScene],
+    scene: [CharacterSelectScene, SettingsScene, AchievementScene, SkillTreeScene, PatchHistoryScene, GameScene, GameOverScene],
 };
 
 const game = new Phaser.Game(config);

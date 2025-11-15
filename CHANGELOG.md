@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.4.8] - 2025-11-15
+
+### Added - NEW FEATURES
+
+**Patch History Viewer:**
+- **Added in-game patch history viewer** 📜
+  - Click scroll icon (📜) next to version number on main menu
+  - Opens PatchHistoryScene showing latest 5 versions
+  - "Load More" button to view full changelog
+  - DOM overlay with smooth scrolling for readability
+  - Custom scrollbar styling matches game aesthetic
+  - Locations: PatchHistoryScene.js, CharacterSelectScene.js lines 113-137
+
+**Changelog Data Module:**
+- **Converted CHANGELOG.md to JavaScript module**
+  - Structured data format for programmatic access
+  - Helper functions: getLatestVersions(), getVersion(), getAllVersions()
+  - Easy to update when adding new patches
+  - Location: src/data/changelogData.js
+
+**Comprehensive Lessons Learned Document:**
+- **Created LESSONS_LEARNED.md for future development**
+  - 8 major sections covering all aspects of development
+  - Technical lessons (lerp bugs, waveReached undefined, version mismatch)
+  - Phaser-specific gotchas (Graphics vs Sprites, physics checks, depth ordering)
+  - Design patterns that worked (systems architecture, status effects, upgrades)
+  - Testing & debugging best practices
+  - Game balance decisions and reasoning
+  - Documentation conventions
+  - Common mistakes to avoid
+  - Performance optimization tips
+  - **Purpose:** Guide future Phaser + JavaScript game development
+  - Location: LESSONS_LEARNED.md (122 pages, 600+ lines)
+
+### Documentation
+
+**Updated MagicAffinityBible.md:**
+- Updated version to 3.4.8
+
+---
+
 ## [3.4.7] - 2025-11-15
 
 ### Fixed - CRITICAL ACHIEVEMENT BUG
