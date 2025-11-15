@@ -7,6 +7,104 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.4.1] - 2025-11-15
+
+### Changed - WIND ELEMENT KNOCKBACK REWORK
+- **Base Knockback Chance:** Increased from 5% to 25%
+  - Wind boomerang attacks now have 25% chance to apply knockback + sleep
+  - Sleep duration: 2 seconds when knockback triggers
+  - Initialized when Wind element is selected
+  - Location: UpgradeSystem.js lines 234-238
+
+- **Zephyr Upgrade:** Completely reworked to stackable knockback chance boost
+  - **OLD:** +20% movement speed (one-time)
+  - **NEW:** +25% knockback chance per stack (stackable up to 4 times)
+  - **Stack 1:** 25% → 50% knockback chance
+  - **Stack 2:** 50% → 75% knockback chance
+  - **Stack 3:** 75% → 100% knockback chance
+  - **Stack 4:** 100% knockback chance (guaranteed!)
+  - Automatically removed from upgrade pool after 4th stack
+  - Dynamic description shows progression
+  - Location: UpgradeSystem.js lines 634-654, 1001-1004
+
+- **Knockback Application:** Now uses chance-based system
+  - Checks `player.knockbackChance` before applying knockback
+  - Applies sleep status effect on successful knockback
+  - Knockback distance: 50px push (200 power * knockbackBonus)
+  - Location: GameScene.js lines 1572-1583
+
+### Changed - BALANCE ADJUSTMENTS
+- **Boss HP Reduction:** Reduced boss health by 25% across all waves
+  - **Formula:** 500 + (bossLevel × 200) → 375 + (bossLevel × 150)
+  - Makes boss fights less grindy
+  - Location: EnemySystem.js line 46
+
+- **Enemy Wave Scaling:** Reduced wave-to-wave enemy count growth
+  - **Multiplier:** 1.3 → 1.2 per wave
+  - Slower difficulty ramp for better pacing
+  - Location: WaveSystem.js line 139
+
+- **Character Name:** Changed from "WIZARD" to "NUXX"
+  - Updated in all UI locations
+  - Location: UISystem.js lines 59, 249; GameOverScene.js line 40
+
+### Fixed - CRITICAL BUGS
+- **Invincibility Buff:** Fixed buff not blocking tank laser and bomber explosion damage
+  - **Root Cause:** Missing `player.hasInvincibility` check in two damage locations
+  - **Tank Laser:** Added check to `tankLaserHitPlayer()`
+  - **Bomber Explosion:** Added check to `bomberExplode()`
+  - Invincibility now correctly blocks ALL damage types
+  - Location: GameScene.js line 4079; EnemySystem.js lines 525-529
+
+### Changed - ACHIEVEMENT DEBUGGING
+- **Element Master Tracking:** Added comprehensive debugging for element-specific achievements
+  - Logs when element selection occurs
+  - Logs best wave tracking for each element
+  - Logs if achievement ID doesn't exist in data structure
+  - Shows available achievement IDs if lookup fails
+  - Warns if `runData.element` is not set
+  - Location: ProgressionSystem.js lines 133-151
+
+### Technical
+- **UpgradeSystem.js:**
+  - Added Wind knockback initialization (lines 234-238)
+  - Reworked Zephyr upgrade to stackable (lines 634-654)
+  - Added Zephyr max stack filter (lines 1001-1004)
+
+- **GameScene.js:**
+  - Fixed invincibility check in tank laser collision (line 4079)
+  - Updated wind boomerang knockback logic (lines 1572-1583)
+
+- **EnemySystem.js:**
+  - Reduced boss HP formula by 25% (line 46)
+  - Fixed invincibility check in bomber explosion (lines 525-529)
+
+- **WaveSystem.js:**
+  - Reduced wave scaling multiplier from 1.3 to 1.2 (line 139)
+
+- **UISystem.js:**
+  - Changed character name to "NUXX" (lines 59, 249)
+
+- **GameOverScene.js:**
+  - Changed character name to "NUXX" (line 40)
+
+- **ProgressionSystem.js:**
+  - Enhanced element master debugging (lines 133-151)
+
+### Documentation
+- **MagicAffinityBible.md:** (to be updated)
+  - Version: 3.4.0 → 3.4.1
+  - Updated Wind base knockback: 5% → 25%
+  - Updated Zephyr upgrade: stackable knockback chance (+25% per stack, max 4)
+  - Updated boss HP formula (25% reduction)
+  - Updated enemy wave scaling formula (1.3 → 1.2)
+  - Changed character name to NUXX
+
+- **CharacterSelectScene.js:** (to be updated)
+  - Version number: v3.4.0 → v3.4.1
+
+---
+
 ## [3.4.0] - 2025-11-15
 
 ### Added - MAGNET POWER-UP (4TH TREASURE CHEST ITEM)

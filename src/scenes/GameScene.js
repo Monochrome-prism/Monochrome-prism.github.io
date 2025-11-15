@@ -1569,10 +1569,17 @@ class GameScene extends Phaser.Scene {
                         const damage = this.player.damage;
                         this.applyDamage(enemy, damage, 0xffffff);
 
-                        // Apply knockback (+ bonuses) - FIX: Was missing!
-                        if (enemy.body) {
+                        // Apply knockback based on chance (v3.4.1: 25% base, +25% per Zephyr stack)
+                        if (enemy.body && this.player.knockbackChance && Math.random() < this.player.knockbackChance) {
                             const knockbackPower = 200 * (this.player.knockbackBonus || 1);
                             applyKnockback(enemy.body, boomerang.x, boomerang.y, enemy.x, enemy.y, knockbackPower);
+
+                            // Apply sleep status effect for 2 seconds on knockback
+                            if (enemy.statusEffects && enemy.statusEffects.sleep) {
+                                enemy.statusEffects.sleep.active = true;
+                                enemy.statusEffects.sleep.duration = 2000; // 2 seconds
+                                enemy.statusEffects.sleep.startTime = time;
+                            }
                         }
 
                         // Flash enemy
@@ -4075,8 +4082,8 @@ class GameScene extends Phaser.Scene {
     }
 
     tankLaserHitPlayer(player, laser) {
-        // Check if player is invulnerable or leveling up
-        if (!laser.active || this.player.invulnerable || this.player.isLevelingUp) return;
+        // Check if player is invulnerable or leveling up or has invincibility buff
+        if (!laser.active || this.player.invulnerable || this.player.isLevelingUp || this.player.hasInvincibility) return;
 
         // Apply damage
         let damage = laser.damage || 15;

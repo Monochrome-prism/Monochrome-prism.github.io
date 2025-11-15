@@ -43,7 +43,7 @@ export class EnemySystem {
 
         // Boss stats (very powerful)
         const bossLevel = Math.floor(this.waveSystem.getCurrentWave() / 5);
-        boss.maxHealth = 500 + bossLevel * 200;
+        boss.maxHealth = 375 + bossLevel * 150; // Reduced by 25% from 500 + bossLevel * 200 (v3.4.1)
         boss.health = boss.maxHealth;
         boss.speed = 35 + bossLevel * 5;
         boss.damage = (20 + bossLevel * 5) * 2; // Doubled damage
@@ -525,7 +525,8 @@ export class EnemySystem {
         if (
             distToPlayer < explosionRadius &&
             !this.player.invulnerable &&
-            !this.player.isLevelingUp
+            !this.player.isLevelingUp &&
+            !this.player.hasInvincibility
         ) {
             const damage = enemy.damage * 2; // Double damage from explosion
             this.player.health -= damage;

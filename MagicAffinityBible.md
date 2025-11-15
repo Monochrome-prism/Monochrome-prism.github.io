@@ -1,6 +1,6 @@
 # Branded For Death: Magic Affinity - Game Design Document
 
-**Version:** 3.4.0
+**Version:** 3.4.1
 **Last Updated:** November 15, 2025
 **Status:** Complete Phase 3 - Meta-Progression with Stackable Upgrades
 
@@ -252,17 +252,18 @@ At level 1, choose one of 10 elemental types. Each element has:
 ---
 
 ### 💨 WIND - Control & Knockback
-**Primary Effect:** Knockback (200 power)
+**Primary Effect:** Knockback (200 power, 50px distance) + Sleep (2s) - 25% base chance (v3.4.1)
 **Base Damage Bonus:** +10 damage (30 total)
 **Color:** Light cyan (#E0FFFF)
 **Orbs:** 0 (removed for boomerang system)
 **Attack Pattern:** Throwing boomerangs that return (1 per second, max 3 simultaneous base)
 - 1st boomerang targets nearest enemy
 - 2nd and 3rd boomerangs shoot random directions
+- 25% chance per hit to apply knockback + sleep (v3.4.1)
 
 **Upgrades:**
 1. **Gale Force** - +50% knockback distance
-2. **Zephyr** - +50% knockback chance (5%→7.5%)
+2. **Zephyr** - Stackable (max 4x): +25% knockback chance (25%→50%→75%→100%) (v3.4.1)
 3. **Cyclone** - Knockback affects 3 enemies (closest)
 4. **Hurricane** - +1 additional boomerang (stackable: 3→4→5→6...)
 
@@ -366,7 +367,7 @@ At level 1, choose one of 10 elemental types. Each element has:
 - 2 second pause between waves
 
 **Scaling Formula:**
-- Enemies per wave: `enemiesThisWave * 1.3`
+- Enemies per wave: `enemiesThisWave * 1.2` (reduced from 1.3 in v3.4.1)
 - Enemy HP: `30 + (wave * 5)`
 - Enemy Speed: Static (no scaling) - Slime: 40, Goblin: 70, Tank: 30, Bomber: 45
 - Enemy Damage: `5 + wave`
@@ -433,7 +434,7 @@ At level 1, choose one of 10 elemental types. Each element has:
 | Stat | Formula | Wave 5 Example |
 |------|---------|----------------|
 | Appearance | Wave 5, 10, 15, 20... | Every 5 waves |
-| Health | 500 + (bossLevel * 200) | 700 HP (bossLevel=1) |
+| Health | 375 + (bossLevel * 150) | 525 HP (bossLevel=1) - reduced 25% (v3.4.1) |
 | Speed | 35 + (bossLevel * 5) | 40 |
 | Damage | 20 + (bossLevel * 5) | 25 (melee), 25 (laser) |
 | XP Value | 113 | 113 |

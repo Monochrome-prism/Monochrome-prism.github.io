@@ -231,6 +231,12 @@ export class UpgradeSystem {
                     this.player.damage += 5; // Flame gets +5 base damage (25 total) - BUFFED by 25%
                 }
 
+                // Initialize Wind-specific knockback system (v3.4.1)
+                if (elementKey === 'wind') {
+                    this.player.knockbackChance = 0.25; // 25% base chance
+                    this.player.zephyrStacks = 0; // Track Zephyr stacks (max 4)
+                }
+
                 // Update character name display
                 this.uiSystem.updateCharacterName(element.name);
 
@@ -628,9 +634,22 @@ export class UpgradeSystem {
                 {
                     name: "Zephyr",
                     icon: "🌬️",
-                    description: "+20% movement speed",
+                    description: "+25% knockback chance",
+                    upgradeKey: "zephyr",
+                    getDescription: () => {
+                        const stacks = this.player.zephyrStacks || 0;
+                        const currentChance = 25 + (stacks * 25);
+                        const nextChance = 25 + ((stacks + 1) * 25);
+                        if (stacks === 0) {
+                            return `+25% knockback chance (25% → 50%)`;
+                        } else {
+                            return `+25% knockback chance (${currentChance}% → ${nextChance}%)`;
+                        }
+                    },
                     apply: () => {
-                        this.player.speed *= 1.2;
+                        this.player.zephyrStacks = (this.player.zephyrStacks || 0) + 1;
+                        this.player.knockbackChance = 0.25 + (this.player.zephyrStacks * 0.25); // 25% base + 25% per stack
+                        console.log(`Zephyr upgraded! Stack ${this.player.zephyrStacks}/4 - ${this.player.knockbackChance * 100}% knockback chance`);
                     }
                 },
                 {
@@ -977,6 +996,10 @@ export class UpgradeSystem {
             }
             // Critical Strike can only be selected 4 times (v3.4.0+)
             if (upgrade.name === "Critical Strike" && (this.player.critStacks || 0) >= 4) {
+                return false;
+            }
+            // Zephyr can only be selected 4 times (v3.4.1+)
+            if (upgrade.name === "Zephyr" && (this.player.zephyrStacks || 0) >= 4) {
                 return false;
             }
             return true;
