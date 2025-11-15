@@ -253,9 +253,9 @@ export class ProgressionSystem {
     getSkillBonuses() {
         const skills = this.data.skillTree.skills;
         return {
-            health: 1 + (skills.health * 0.05),  // +5% per level
-            damage: 1 + (skills.damage * 0.05),  // +5% per level
-            speed: 1 + (skills.speed * 0.05)     // +5% per level
+            health: 1 + (skills.health * 0.10),  // +10% per level (v3.4.3)
+            damage: 1 + (skills.damage * 0.10),  // +10% per level (v3.4.3)
+            speed: 1 + (skills.speed * 0.10)     // +10% per level (v3.4.3)
         };
     }
 

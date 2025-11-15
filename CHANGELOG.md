@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.4.3] - 2025-11-15
+
+### Fixed - CRITICAL BUG FIXES
+
+**Achievement Tracking:**
+- **CRITICAL:** Fixed `waveReached` being undefined causing all wave-dependent achievements to fail
+  - Issue: `waveReached` was only set when completing a wave, not when dying mid-wave
+  - Fix: Added `gameState.waveReached = this.currentWave` in `gameOver()` function
+  - Impact: All 10 Element Master achievements and Wave Warrior now properly track progress
+  - Location: GameScene.js line 4510
+
+**Knockback System:**
+- **Fixed knockback not pushing enemies away**
+  - Issue: Enemy AI recalculated velocity every 3 frames, overriding knockback immediately
+  - Fix: Added `knockbackUntil` timer system (300ms duration)
+  - Enemy movement AI now checks `isKnockedBack` before allowing velocity changes
+  - Locations: GameScene.js lines 1577 (timer set), 3143 (movement check)
+
+**Wind Element:**
+- **Removed Sleep effect from Wind element** (mistakenly re-added in v3.4.1)
+  - Wind now only applies knockback (25% base chance)
+  - Sleep status effect removed from Wind boomerang hits
+  - Location: GameScene.js lines 1572-1578
+
+### Changed - BALANCE ADJUSTMENTS
+
+**Skill Tree Buffs:**
+- **Increased all skill tree bonuses from +5% to +10% per level**
+  - Health Boost: Max +50% HP (50 → 75 HP) (was +25%)
+  - Damage Boost: Max +50% damage (20 → 30 dmg) (was +25%)
+  - Speed Boost: Max +50% speed (140 → 210) (was +25%)
+  - Rationale: Makes skill tree progression more impactful and rewarding
+  - Location: ProgressionSystem.js lines 256-258
+
+### Documentation
+
+**Updated MagicAffinityBible.md:**
+- Updated Wind element description to remove Sleep effect (v3.4.3)
+- Updated Skill Tree section with new 10% bonuses and max values
+- Updated Status Effects table to mark Sleep as removed from Wind
+- Updated version to 3.4.3
+
+---
+
 ## [3.4.2] - 2025-11-15
 
 ### Added - VISUAL POLISH UPDATE

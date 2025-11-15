@@ -1573,13 +1573,8 @@ class GameScene extends Phaser.Scene {
                         if (enemy.body && this.player.knockbackChance && Math.random() < this.player.knockbackChance) {
                             const knockbackPower = 200 * (this.player.knockbackBonus || 1);
                             applyKnockback(enemy.body, boomerang.x, boomerang.y, enemy.x, enemy.y, knockbackPower);
-
-                            // Apply sleep status effect for 2 seconds on knockback
-                            if (enemy.statusEffects && enemy.statusEffects.sleep) {
-                                enemy.statusEffects.sleep.active = true;
-                                enemy.statusEffects.sleep.duration = 2000; // 2 seconds
-                                enemy.statusEffects.sleep.startTime = time;
-                            }
+                            // Set knockback timer to prevent AI from overriding velocity (300ms)
+                            enemy.knockbackUntil = time + 300;
                         }
 
                         // Flash enemy
@@ -3146,11 +3141,13 @@ class GameScene extends Phaser.Scene {
                 createStatusEffectVisuals(this, enemy, time);
             }
 
-            // Check if enemy can move (not frozen, paralyzed, or sleeping)
+            // Check if enemy can move (not frozen, paralyzed, sleeping, or being knocked back)
+            const isKnockedBack = enemy.knockbackUntil && time < enemy.knockbackUntil;
             const canMove = enemy.statusEffects &&
                            !enemy.statusEffects.freeze.active &&
                            !enemy.statusEffects.paralyze.active &&
-                           !enemy.statusEffects.sleep.active;
+                           !enemy.statusEffects.sleep.active &&
+                           !isKnockedBack;
 
             if (canMove) {
                 // Move towards player, away if feared, or randomly if confused
@@ -4508,6 +4505,9 @@ class GameScene extends Phaser.Scene {
      */
     gameOver() {
         this.paused = true;
+
+        // Track wave reached for achievements (even if player dies mid-wave) (v3.4.3)
+        gameState.waveReached = this.currentWave;
 
         // Stop and destroy background music
         if (this.bgMusic) {

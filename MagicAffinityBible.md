@@ -1,8 +1,8 @@
 # Branded For Death: Magic Affinity - Game Design Document
 
-**Version:** 3.4.2
+**Version:** 3.4.3
 **Last Updated:** November 15, 2025
-**Status:** Complete Phase 3 - Meta-Progression with Visual Polish
+**Status:** Complete Phase 3 - Critical Bug Fixes and Balance Adjustments
 
 ---
 
@@ -252,14 +252,14 @@ At level 1, choose one of 10 elemental types. Each element has:
 ---
 
 ### 💨 WIND - Control & Knockback
-**Primary Effect:** Knockback (200 power, 50px distance) + Sleep (2s) - 25% base chance (v3.4.1)
+**Primary Effect:** Knockback (200 power, 50px distance) - 25% base chance (v3.4.3)
 **Base Damage Bonus:** +10 damage (30 total)
 **Color:** Light cyan (#E0FFFF)
 **Orbs:** 0 (removed for boomerang system)
 **Attack Pattern:** Throwing boomerangs that return (1 per second, max 3 simultaneous base)
 - 1st boomerang targets nearest enemy
 - 2nd and 3rd boomerangs shoot random directions
-- 25% chance per hit to apply knockback + sleep (v3.4.1)
+- 25% chance per hit to apply knockback (v3.4.3)
 
 **Upgrades:**
 1. **Gale Force** - +50% knockback distance
@@ -513,7 +513,7 @@ At level 1, choose one of 10 elemental types. Each element has:
 | Freeze ❄️ | Water | Blue ice overlay | 2s | 50% |
 | Paralyze ⚡ | Electric | Yellow electric sparks | 1s | 50% |
 | Poison ☠️ | Nature | Green bubbles floating | 6s | 30% |
-| Sleep 💤 | Wind | White "Z" symbols | 2s | 50% |
+| Sleep 💤 | ~~Wind~~ | White "Z" symbols | 2s | ~~Removed v3.4.3~~ |
 | Charm 💝 | Celestial | Pink hearts | 3s | 5% |
 | Confusion 😵 | Gravity | Yellow spinning stars | 2s | 10% |
 | Blind 🕶️ | Radiant | Dark overlay | 2s | 15% |
@@ -735,19 +735,19 @@ Players earn permanent stat boosts that apply to all future runs.
 **3 Skill Upgrades Available:**
 
 1. **Health Boost** ❤️
-   - **Effect:** +5% starting HP per level
+   - **Effect:** +10% starting HP per level (v3.4.3)
    - **Max Level:** 5
-   - **Max Bonus:** +25% HP (50 → 62 HP)
+   - **Max Bonus:** +50% HP (50 → 75 HP)
 
 2. **Damage Boost** ⚔️
-   - **Effect:** +5% damage per level
+   - **Effect:** +10% damage per level (v3.4.3)
    - **Max Level:** 5
-   - **Max Bonus:** +25% damage (20 → 25 dmg)
+   - **Max Bonus:** +50% damage (20 → 30 dmg)
 
 3. **Speed Boost** 💨
-   - **Effect:** +5% movement speed per level
+   - **Effect:** +10% movement speed per level (v3.4.3)
    - **Max Level:** 5
-   - **Max Bonus:** +25% speed (140 → 175)
+   - **Max Bonus:** +50% speed (140 → 210)
 
 **Skill Builds:**
 - **Focused Build:** 5 points in one skill (e.g., max HP)
