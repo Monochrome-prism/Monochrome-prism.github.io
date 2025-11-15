@@ -1,8 +1,8 @@
 # Branded For Death: Magic Affinity - Game Design Document
 
-**Version:** 3.4.3
+**Version:** 3.4.4
 **Last Updated:** November 15, 2025
-**Status:** Complete Phase 3 - Critical Bug Fixes and Balance Adjustments
+**Status:** Complete Phase 3 - Bug Fixes, Balance, and Polish
 
 ---
 
@@ -486,7 +486,7 @@ At level 1, choose one of 10 elemental types. Each element has:
 ### Upgrade System
 
 **Universal Upgrades (4 total):**
-1. **Health Boost** ❤️ - +20 Max HP, restore 30 HP immediately
+1. **Health Boost** ❤️ - +25 Max HP, restore 50 HP immediately (v3.4.4)
 2. **Damage Boost** ⚔️ - +50% Damage
 3. **Critical Strike** 💥 - Stackable (max 4x): 25%→50%→75%→100% crit chance, always 2x damage (v3.4.0+)
 4. **Armor Boost** 🛡️ - 25% damage reduction from all sources (max 2x)

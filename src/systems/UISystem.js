@@ -35,10 +35,6 @@ export class UISystem {
         this.displayedHealthPercent = 1.0;
         this.displayedXPPercent = 0;
         this.lastLowHPPulse = 0; // Track pulse timing
-
-        // Shine overlays (v3.4.2)
-        this.hpShine = null;
-        this.xpShine = null;
     }
 
     /**
@@ -91,12 +87,6 @@ export class UISystem {
             })
             .setDepth(1001);
 
-        // HP Bar drop shadow (v3.4.2)
-        const hpShadow = this.scene.add.graphics();
-        hpShadow.fillStyle(0x000000, 0.5);
-        hpShadow.fillRect(52, 653, 250, 8);
-        hpShadow.setDepth(999);
-
         this.hpBarBg = this.scene.add.graphics();
         this.hpBarBg.fillStyle(0x8b0000, 1);
         this.hpBarBg.fillRect(50, 651, 250, 8);
@@ -104,10 +94,6 @@ export class UISystem {
 
         this.hpBar = this.scene.add.graphics();
         this.hpBar.setDepth(1001);
-
-        // HP Bar shine overlay (v3.4.2 - animated)
-        this.hpShine = this.scene.add.graphics();
-        this.hpShine.setDepth(1002);
 
         // XP Bar
         this.scene.add
@@ -118,12 +104,6 @@ export class UISystem {
             })
             .setDepth(1001);
 
-        // XP Bar drop shadow (v3.4.2)
-        const xpShadow = this.scene.add.graphics();
-        xpShadow.fillStyle(0x000000, 0.5);
-        xpShadow.fillRect(52, 671, 250, 8);
-        xpShadow.setDepth(999);
-
         this.xpBarBg = this.scene.add.graphics();
         this.xpBarBg.fillStyle(0x00008b, 1);
         this.xpBarBg.fillRect(50, 669, 250, 8);
@@ -131,10 +111,6 @@ export class UISystem {
 
         this.xpBar = this.scene.add.graphics();
         this.xpBar.setDepth(1001);
-
-        // XP Bar shine overlay (v3.4.2 - animated)
-        this.xpShine = this.scene.add.graphics();
-        this.xpShine.setDepth(1002);
 
         // Wave and Score info (bottom right)
         const rightUIGraphics = this.scene.add.graphics();
@@ -233,17 +209,6 @@ export class UISystem {
 
         this.hpBar.fillStyle(color, 1);
         this.hpBar.fillRect(50, 651, 250 * this.displayedHealthPercent, 8);
-
-        // Animated shine overlay - simple moving white bar (v3.4.2)
-        this.hpShine.clear();
-        const shineOffset = (now / 30) % 300; // Move across bar every ~5s
-        this.hpShine.fillStyle(0xffffff, 0.3); // White, 30% opacity
-        const shineWidth = 40;
-        const shineX = 50 + shineOffset - 20;
-        // Only draw shine within the filled portion of the bar
-        if (shineX < 50 + 250 * this.displayedHealthPercent) {
-            this.hpShine.fillRect(shineX, 651, Math.min(shineWidth, (50 + 250 * this.displayedHealthPercent) - shineX), 8);
-        }
     }
 
     /**
@@ -271,18 +236,6 @@ export class UISystem {
         this.xpBar.clear();
         this.xpBar.fillStyle(0x4169e1, 1);
         this.xpBar.fillRect(50, 669, 250 * this.displayedXPPercent, 8);
-
-        // Animated shine overlay - simple moving white bar (v3.4.2)
-        this.xpShine.clear();
-        const now = this.scene.time.now;
-        const shineOffset = (now / 30) % 300; // Move across bar every ~5s
-        this.xpShine.fillStyle(0xffffff, 0.3); // White, 30% opacity
-        const shineWidth = 40;
-        const shineX = 50 + shineOffset - 20;
-        // Only draw shine within the filled portion of the bar
-        if (shineX < 50 + 250 * this.displayedXPPercent) {
-            this.xpShine.fillRect(shineX, 669, Math.min(shineWidth, (50 + 250 * this.displayedXPPercent) - shineX), 8);
-        }
     }
 
     /**
