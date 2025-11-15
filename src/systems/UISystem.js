@@ -33,10 +33,8 @@ export class UISystem {
         this.bossNameText = null;
         this.bossHealthBar = null;
 
-        // Bar animation tracking (v3.4.2)
-        this.displayedHealthPercent = 1.0;
-        this.displayedXPPercent = 0;
-        this.lastLowHPPulse = 0; // Track pulse timing
+        // Low HP pulse tracking (v3.4.5)
+        this.lastLowHPPulse = 0;
     }
 
     /**
@@ -97,14 +95,18 @@ export class UISystem {
         this.hpBar = this.scene.add.graphics();
         this.hpBar.setDepth(1001);
 
-        // HP numeric display (v3.4.5)
+        // HP numeric display (v3.4.5 - larger with stroke)
         this.hpValueText = this.scene.add
-            .text(305, 650, "50/50", {
-                fontSize: `${Math.floor(10 * scale)}px`,
+            .text(220, 649, "50/50", {
+                fontSize: `${Math.floor(14 * scale)}px`,
                 fill: "#ffffff",
                 fontFamily: "Courier New",
+                fontStyle: "bold",
+                stroke: "#000000",
+                strokeThickness: 3
             })
-            .setDepth(1001);
+            .setDepth(1001)
+            .setOrigin(0, 0);
 
         // XP Bar
         this.scene.add
@@ -123,14 +125,18 @@ export class UISystem {
         this.xpBar = this.scene.add.graphics();
         this.xpBar.setDepth(1001);
 
-        // XP numeric display (v3.4.5)
+        // XP numeric display (v3.4.5 - larger with stroke)
         this.xpValueText = this.scene.add
-            .text(305, 668, "0/50", {
-                fontSize: `${Math.floor(10 * scale)}px`,
+            .text(220, 667, "0/50", {
+                fontSize: `${Math.floor(14 * scale)}px`,
                 fill: "#ffffff",
                 fontFamily: "Courier New",
+                fontStyle: "bold",
+                stroke: "#000000",
+                strokeThickness: 3
             })
-            .setDepth(1001);
+            .setDepth(1001)
+            .setOrigin(0, 0);
 
         // Wave and Score info (bottom right)
         const rightUIGraphics = this.scene.add.graphics();
@@ -196,26 +202,19 @@ export class UISystem {
      * @returns {void}
      */
     updateHealthBar(player) {
-        const targetHealthPercent = player.health / player.maxHealth;
-
-        // Smooth lerp animation (v3.4.2 - lerp speed 0.2)
-        this.displayedHealthPercent += (targetHealthPercent - this.displayedHealthPercent) * 0.2;
-
-        // Clamp to avoid overshooting
-        if (Math.abs(this.displayedHealthPercent - targetHealthPercent) < 0.001) {
-            this.displayedHealthPercent = targetHealthPercent;
-        }
+        // Use actual health percent (v3.4.5 - removed lerp to fix visual bug)
+        const healthPercent = Math.max(0, player.health / player.maxHealth);
 
         // Clear and redraw
         this.hpBar.clear();
 
         let color = 0xff0000;
-        if (this.displayedHealthPercent > 0.5) color = 0x00ff00;
-        else if (this.displayedHealthPercent > 0.25) color = 0xffa500;
+        if (healthPercent > 0.5) color = 0x00ff00;
+        else if (healthPercent > 0.25) color = 0xffa500;
 
-        // Low HP pulse: Flash red when < 25% HP every 1000ms (v3.4.2)
+        // Low HP pulse: Flash red when < 25% HP every 1000ms
         const now = this.scene.time.now;
-        if (this.displayedHealthPercent < 0.25) {
+        if (healthPercent < 0.25 && healthPercent > 0) {
             if (now - this.lastLowHPPulse > 1000) {
                 this.lastLowHPPulse = now;
             }
@@ -228,7 +227,7 @@ export class UISystem {
         }
 
         this.hpBar.fillStyle(color, 1);
-        this.hpBar.fillRect(50, 651, 250 * this.displayedHealthPercent, 8);
+        this.hpBar.fillRect(50, 651, 250 * healthPercent, 8);
 
         // Update numeric HP display (v3.4.5)
         this.hpValueText.setText(`${Math.floor(player.health)}/${player.maxHealth}`);
@@ -240,25 +239,13 @@ export class UISystem {
      * @returns {void}
      */
     updateXPBar(player) {
-        const targetXPPercent = player.xp / player.xpToNext;
-
-        // Smooth lerp animation (v3.4.2 - lerp speed 0.2)
-        this.displayedXPPercent += (targetXPPercent - this.displayedXPPercent) * 0.2;
-
-        // Clamp to avoid overshooting
-        if (Math.abs(this.displayedXPPercent - targetXPPercent) < 0.001) {
-            this.displayedXPPercent = targetXPPercent;
-        }
-
-        // Reset on level up (when xp becomes 0)
-        if (targetXPPercent < 0.1 && this.displayedXPPercent > 0.5) {
-            this.displayedXPPercent = 0;
-        }
+        // Use actual XP percent (v3.4.5 - removed lerp to fix visual bug)
+        const xpPercent = Math.min(1, Math.max(0, player.xp / player.xpToNext));
 
         // Clear and redraw
         this.xpBar.clear();
         this.xpBar.fillStyle(0x4169e1, 1);
-        this.xpBar.fillRect(50, 669, 250 * this.displayedXPPercent, 8);
+        this.xpBar.fillRect(50, 669, 250 * xpPercent, 8);
 
         // Update numeric XP display (v3.4.5)
         this.xpValueText.setText(`${Math.floor(player.xp)}/${player.xpToNext}`);
