@@ -7,6 +7,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.4.4] - 2025-11-15
+
+### Fixed - BUG FIXES & QOL
+
+**Boss Laser During Upgrades:**
+- **Fixed unavoidable laser damage during upgrade selection**
+  - Issue: Boss laser delayed callback fired even when game was paused
+  - Fix: Added `this.scene.paused` check in laser delayed callback
+  - Impact: Players no longer take damage while selecting upgrades
+  - Location: EnemySystem.js line 427
+
+**Ice Patches Persisting:**
+- **Fixed invisible ice patches from previous runs affecting new games**
+  - Issue: Ice patches from winter maps weren't cleaned up on game over
+  - Fix: Added ice patch cleanup in `gameOver()` function
+  - Impact: Ice patches only exist in winter maps as intended
+  - Location: GameScene.js lines 4535-4541
+
+**Red Potion Not Healing:**
+- **Fixed treasure chest potions sometimes not healing**
+  - Issue: Chest could be destroyed before healing processed (high enemy count)
+  - Fix: Destroy chest immediately after collection, ensure heal always applies
+  - Impact: Red potions now reliably heal 50% max HP
+  - Location: GameScene.js lines 3788-3836
+
+**Skill Tree Menu Display:**
+- **Fixed skill tree menu showing outdated +5% values**
+  - Issue: Display text not updated when bonuses changed to +10% in v3.4.3
+  - Fix: Updated all three skill descriptions to show "+10% per level"
+  - Location: SkillTreeScene.js lines 40-42
+
+### Changed - BALANCE ADJUSTMENTS
+
+**Health Boost Upgrade Buff:**
+- **Increased Health Boost upgrade effectiveness**
+  - Max HP: +20 → +25
+  - Instant Heal: 30 → 50 HP
+  - Added green +50 visual feedback when selected
+  - Rationale: Makes health upgrade more competitive with damage/utility
+  - Location: UpgradeSystem.js lines 920-933
+
+### Removed - UI POLISH CLEANUP
+
+**Removed Distracting Visual Effects:**
+- **Removed animated shine overlay** from health and XP bars
+  - User feedback: Distracting and not essential
+  - Kept: Lerp animation, low HP pulse (functional feedback)
+  - Locations: UISystem.js lines 34-41, 89-97, 105-113, 210-222, 235-250
+
+- **Removed drop shadows** from health and XP bars
+  - Simplified UI appearance
+  - Locations: UISystem.js (removed shadow graphics creation)
+
+### Documentation
+
+**Updated MagicAffinityBible.md:**
+- Updated Health Boost upgrade (+25 HP, restore 50 HP)
+- Confirmed wave completion heal is 25% max HP (already implemented)
+- Updated version to 3.4.4
+
+---
+
 ## [3.4.3] - 2025-11-15
 
 ### Fixed - CRITICAL BUG FIXES

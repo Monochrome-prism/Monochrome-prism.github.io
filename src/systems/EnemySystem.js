@@ -423,7 +423,8 @@ export class EnemySystem {
 
         // After 0.5 seconds, fire the actual laser
         this.scene.time.delayedCall(500, () => {
-            if (!laser.active) return;
+            // Don't fire laser if game is paused (v3.4.4: prevents unavoidable damage during upgrades)
+            if (!laser.active || this.scene.paused) return;
 
             laser.clear();
             // Actual laser beam (thick, bright)

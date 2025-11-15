@@ -3788,6 +3788,9 @@ class GameScene extends Phaser.Scene {
     collectTreasureChest(player, chest) {
         if (!chest.active) return;
 
+        // Destroy chest immediately to prevent double collection (v3.4.4)
+        chest.destroy();
+
         // Roll for random item (v3.4.0: 4 items, 25% chance each)
         const roll = Math.random();
         const time = this.time.now;
@@ -3797,9 +3800,9 @@ class GameScene extends Phaser.Scene {
             const healAmount = Math.floor(this.player.maxHealth * 0.5);
             const actualHeal = Math.min(healAmount, this.player.maxHealth - this.player.health);
 
-            if (actualHeal > 0) {
-                this.player.health += actualHeal;
-            }
+            // Always apply heal, even if 0 (ensures health bar updates)
+            this.player.health = Math.min(this.player.maxHealth, this.player.health + actualHeal);
+            this.uiSystem.updateHealthBar(this.player);
 
             // Visual feedback (always show, even if no healing)
             this.showHealingEffect(actualHeal);
@@ -3830,14 +3833,6 @@ class GameScene extends Phaser.Scene {
             this.showItemPickupMessage("Magnet!", 0xC0C0C0);  // Silver color
             soundFX.play("powerup");
         }
-
-        // Update health bar if healed
-        if (roll < 0.25) {
-            this.uiSystem.updateHealthBar(this.player);
-        }
-
-        // Destroy chest
-        chest.destroy();
     }
 
     /**
@@ -4530,6 +4525,14 @@ class GameScene extends Phaser.Scene {
                 if (hazard && hazard.destroy) hazard.destroy();
             });
             this.hazards = [];
+        }
+
+        // Cleanup ice patches (v3.4.4: prevents invisible ice from persisting in non-winter maps)
+        if (this.icePatches) {
+            this.icePatches.forEach((ice) => {
+                if (ice && ice.destroy) ice.destroy();
+            });
+            this.icePatches = [];
         }
 
         // Update high score

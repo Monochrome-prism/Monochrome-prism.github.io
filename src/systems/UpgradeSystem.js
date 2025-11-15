@@ -919,14 +919,17 @@ export class UpgradeSystem {
             {
                 name: "Health Boost",
                 icon: "❤️",
-                description: "+20 Max HP\nRestore 30 HP",
+                description: "+25 Max HP\nRestore 50 HP",
                 apply: () => {
-                    this.player.maxHealth += 20;
+                    this.player.maxHealth += 25;
+                    const healAmount = 50;
                     this.player.health = Math.min(
                         this.player.maxHealth,
-                        this.player.health + 30,
+                        this.player.health + healAmount,
                     );
                     this.uiSystem.updateHealthBar(this.player);
+                    // Show green +50 visual feedback (v3.4.4)
+                    this.scene.showDamageNumber(this.player.x, this.player.y - 30, '+50', 0x00ff00);
                 },
             },
             {

@@ -36,10 +36,10 @@ export default class SkillTreeScene extends Phaser.Scene {
             fontStyle: "bold"
         }).setOrigin(0.5);
 
-        // Create skill displays
-        this.createSkillDisplay('health', '❤️', 'Health Boost', '+5% starting HP per level', 180);
-        this.createSkillDisplay('damage', '⚔️', 'Damage Boost', '+5% damage per level', 300);
-        this.createSkillDisplay('speed', '💨', 'Speed Boost', '+5% movement speed per level', 420);
+        // Create skill displays (v3.4.4: updated to +10% per level)
+        this.createSkillDisplay('health', '❤️', 'Health Boost', '+10% starting HP per level', 180);
+        this.createSkillDisplay('damage', '⚔️', 'Damage Boost', '+10% damage per level', 300);
+        this.createSkillDisplay('speed', '💨', 'Speed Boost', '+10% movement speed per level', 420);
 
         // Reset button
         this.createResetButton();
