@@ -41,6 +41,44 @@ export class EnemySystem {
         // Scale for mobile
         boss.setScale(this.scene.mobileScale);
 
+        // Boss portal entrance effect - purple spiraling particles (v3.4.2)
+        for (let i = 0; i < 25; i++) {
+            const particle = this.scene.add.graphics();
+
+            // Purple color variations
+            const purpleShades = [0x9932cc, 0x8a2be2, 0x9370db];
+            const color = purpleShades[i % purpleShades.length];
+
+            particle.fillStyle(color, 1);
+            particle.fillCircle(0, 0, Phaser.Math.Between(2, 5));
+            particle.setDepth(15);
+
+            // Start position in a spiral around boss spawn point
+            const spiralRadius = 100 + (i * 5);
+            const spiralAngle = (i / 25) * Math.PI * 8; // Multiple rotations
+            particle.x = 400 + Math.cos(spiralAngle) * spiralRadius;
+            particle.y = 100 + Math.sin(spiralAngle) * spiralRadius;
+
+            // Delay each particle slightly for staggered effect
+            const delay = i * 200; // 200ms between each particle
+
+            this.scene.time.delayedCall(delay, () => {
+                if (particle.active) {
+                    this.scene.tweens.add({
+                        targets: particle,
+                        x: 400, // Boss spawn X
+                        y: 100, // Boss center (comes from -50, so center around 100)
+                        alpha: 0,
+                        scaleX: 0.1,
+                        scaleY: 0.1,
+                        duration: 800,
+                        ease: 'Cubic.easeIn',
+                        onComplete: () => particle.destroy(),
+                    });
+                }
+            });
+        }
+
         // Boss stats (very powerful)
         const bossLevel = Math.floor(this.waveSystem.getCurrentWave() / 5);
         boss.maxHealth = 375 + bossLevel * 150; // Reduced by 25% from 500 + bossLevel * 200 (v3.4.1)
@@ -225,6 +263,17 @@ export class EnemySystem {
         enemy.setDepth(10); // Set depth so enemies appear behind UI
         enemies.add(enemy);
         this.waveSystem.incrementEnemiesAlive();
+
+        // Spawn animation: Scale from 0 → 1 with rotation (v3.4.2)
+        enemy.setScale(0);
+        this.scene.tweens.add({
+            targets: enemy,
+            scaleX: this.scene.mobileScale,
+            scaleY: this.scene.mobileScale,
+            rotation: Math.PI * 2, // 360° rotation
+            duration: 400,
+            ease: 'Back.easeOut',
+        });
     }
 
     /**
@@ -235,26 +284,63 @@ export class EnemySystem {
      * @returns {void}
      */
     killEnemy(enemy, spawnXPOrbCallback, updateScoreCallback) {
-        // Spawn XP orb
-        spawnXPOrbCallback(enemy.x, enemy.y, enemy.xpValue);
-
-        // 5% chance to spawn treasure chest (v3.3.2+)
-        if (Math.random() < 0.05) {
-            this.spawnTreasureChest(enemy.x, enemy.y);
+        // Disable enemy immediately (prevent further interactions)
+        if (enemy.body) {
+            enemy.body.setVelocity(0, 0);
+            enemy.body.enable = false;
         }
+        enemy.setActive(false); // Mark as inactive
 
-        // Add score
-        updateScoreCallback(enemy.scoreValue);
+        // Store loot info before animation
+        const enemyX = enemy.x;
+        const enemyY = enemy.y;
+        const xpValue = enemy.xpValue;
+        const scoreValue = enemy.scoreValue;
+        const isBoss = enemy.isBoss;
+        const shouldDropChest = Math.random() < 0.05; // 5% chance (v3.3.2+)
+
+        // Death animation: Fade + Shrink + Rotate (500ms) (v3.4.2)
+        const randomRotation = Phaser.Math.Between(0, 360) * (Math.PI / 180);
+        this.scene.tweens.add({
+            targets: enemy,
+            alpha: 0,
+            scaleX: 0,
+            scaleY: 0,
+            rotation: randomRotation,
+            duration: 500,
+            ease: 'Cubic.easeIn',
+            onComplete: () => {
+                // Spawn loot AFTER animation completes
+                spawnXPOrbCallback(enemyX, enemyY, xpValue);
+
+                if (shouldDropChest) {
+                    this.spawnTreasureChest(enemyX, enemyY);
+                }
+
+                // Clean up visual status effect overlays
+                if (enemy.freezeOverlay) enemy.freezeOverlay.destroy();
+                if (enemy.confusionStars) enemy.confusionStars.destroy();
+                if (enemy.blindOverlay) enemy.blindOverlay.destroy();
+                if (enemy.fearMark) enemy.fearMark.destroy();
+                if (enemy.slowAura) enemy.slowAura.destroy();
+
+                // Remove enemy
+                enemy.destroy();
+            }
+        });
+
+        // Add score immediately
+        updateScoreCallback(scoreValue);
 
         // Death effect (bigger for boss)
-        if (enemy.isBoss) {
-            createBossDeathEffect(this.scene, enemy.x, enemy.y);
+        if (isBoss) {
+            createBossDeathEffect(this.scene, enemyX, enemyY);
             // Subtle screen shake on boss death
             this.scene.cameras.main.shake(300, 0.005);
             // Remove boss health bar
             this.uiSystem.destroyBossHealthBar();
         } else {
-            createDeathEffect(this.scene, enemy.x, enemy.y);
+            createDeathEffect(this.scene, enemyX, enemyY);
         }
 
         // Play death sound
@@ -278,15 +364,7 @@ export class EnemySystem {
             this.uiSystem.updateHealthBar(this.player);
         }
 
-        // Clean up visual status effect overlays
-        if (enemy.freezeOverlay) enemy.freezeOverlay.destroy();
-        if (enemy.confusionStars) enemy.confusionStars.destroy();
-        if (enemy.blindOverlay) enemy.blindOverlay.destroy();
-        if (enemy.fearMark) enemy.fearMark.destroy();
-        if (enemy.slowAura) enemy.slowAura.destroy();
-
-        // Remove enemy
-        enemy.destroy();
+        // Decrement alive counter immediately
         this.waveSystem.decrementEnemiesAlive();
     }
 
@@ -643,6 +721,36 @@ export class EnemySystem {
 
         // Draw treasure chest
         drawTreasureChest(chest);
+
+        // Spawn poof effect - white smoke particles (v3.4.2)
+        for (let i = 0; i < 15; i++) {
+            const poof = this.scene.add.graphics();
+            poof.x = x;
+            poof.y = y;
+
+            // White/gray smoke colors
+            const smokeColor = i % 2 === 0 ? 0xffffff : 0xcccccc;
+            poof.fillStyle(smokeColor, 1);
+            poof.fillCircle(0, 0, Phaser.Math.Between(3, 6));
+            poof.setDepth(9);
+
+            // Expand upward and outward
+            const angle = (i / 15) * Math.PI * 2;
+            const spreadX = Math.cos(angle) * Phaser.Math.Between(10, 25);
+            const spreadY = -Phaser.Math.Between(20, 40); // Negative = upward
+
+            this.scene.tweens.add({
+                targets: poof,
+                x: x + spreadX,
+                y: y + spreadY,
+                alpha: 0,
+                scaleX: 1.5,
+                scaleY: 1.5,
+                duration: 500,
+                ease: 'Cubic.easeOut',
+                onComplete: () => poof.destroy(),
+            });
+        }
 
         // Physics
         this.scene.physics.add.existing(chest);

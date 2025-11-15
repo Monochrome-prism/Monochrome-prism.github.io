@@ -7,6 +7,118 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.4.2] - 2025-11-15
+
+### Added - VISUAL POLISH UPDATE
+
+**Screen Effects:**
+- **Screen shake on damage:** 3px shake for 200ms on all damage types (enemy contact, laser, hazards)
+  - Applied to player damage in 3 locations
+  - Location: GameScene.js lines 3343, 4106, 4410
+
+**Player Visual Feedback:**
+- **Red flash on damage:** Player tints red for 100ms when taking damage
+  - Provides clear visual feedback
+  - Location: GameScene.js lines 3346-3350, 4109-4113, 4413-4417
+
+**Particle Effects:**
+- **Crit particles upgrade:** Changed from 8 circles to 10 five-pointed stars
+  - Star shapes add more impact to critical strikes
+  - Same colors (yellow/orange/red rotation)
+  - Location: GameScene.js lines 4235-4260
+
+- **Treasure chest spawn poof:** White smoke particles (15 total)
+  - Expand upward and outward over 500ms
+  - Alternating white/gray colors for depth
+  - Location: EnemySystem.js lines 647-675
+
+- **Boss portal entrance:** Purple spiraling particles (25 total)
+  - Spiral inward toward boss spawn point
+  - Staggered delays for dramatic effect (200ms between particles)
+  - 800ms animation duration
+  - Location: EnemySystem.js lines 44-80
+
+**Player Animations:**
+- **Idle bobbing:** ±2px gentle vertical motion when stationary
+  - Sine wave based on time (500ms cycle = 2 bobs/second)
+  - Location: GameScene.js lines 2957-2960
+
+- **Movement lean:** 10° rotation in direction of travel
+  - Calculated from movement angle
+  - Adds life and dynamism to movement
+  - Location: GameScene.js lines 2952-2955
+
+- **Damage flash:** Red tint already added (see above)
+
+**Enemy Animations:**
+- **Spawn animation:** Scale from 0 → 1 with 360° rotation
+  - 400ms duration with Back.easeOut easing
+  - Enemies appear with dramatic flair
+  - Location: EnemySystem.js lines 267-276
+
+- **Death animation:** Fade + shrink + rotate (500ms)
+  - Random rotation direction (0-360°)
+  - Loot drops AFTER animation completes
+  - Cubic.easeIn for smooth disappearance
+  - Location: EnemySystem.js lines 302-330
+
+**UI Improvements:**
+- **Health/XP bar lerp:** Smooth animated fill instead of instant updates
+  - Lerp speed: 0.2 (balanced smoothness)
+  - Location: UISystem.js lines 205-210, 259-265
+
+- **Low HP pulse:** Health bar flashes red when < 25% HP
+  - Pulses every 1000ms
+  - 200ms flash duration
+  - Location: UISystem.js lines 220-232
+
+- **Animated shine overlay:** Moving gloss effect on both bars
+  - Travels across bar every ~5 seconds
+  - White gradient with 40% opacity at peak
+  - Location: UISystem.js lines 237-248, 277-289
+
+- **Drop shadows:** Added to both health and XP bars
+  - 2px offset, 50% opacity black
+  - Adds depth to UI
+  - Location: UISystem.js lines 94-98, 121-125
+
+### Technical
+
+**GameScene.js:**
+- Added screen shake to 3 damage locations (lines 3343, 4106, 4410)
+- Added red flash to 3 damage locations (lines 3346-3350, 4109-4113, 4413-4417)
+- Updated crit particles to stars (lines 4235-4260)
+- Added player idle bobbing (lines 2957-2960)
+- Added player movement lean (lines 2952-2955)
+
+**EnemySystem.js:**
+- Added treasure chest poof particles (lines 647-675)
+- Added boss portal entrance effect (lines 44-80)
+- Added enemy spawn animation (lines 267-276)
+- Updated killEnemy() for death animation (lines 286-369)
+  - Loot spawns after animation completes
+  - Enemy disabled immediately to prevent interactions
+
+**UISystem.js:**
+- Added bar tracking variables to constructor (lines 34-41)
+- Added drop shadows for HP/XP bars (lines 94-98, 121-125)
+- Added shine overlay graphics (lines 108-110, 135-137)
+- Updated updateHealthBar() with lerp + pulse + shine (lines 202-249)
+- Updated updateXPBar() with lerp + shine (lines 256-290)
+
+**CharacterSelectScene.js:**
+- Updated version number to v3.4.2 (line 101)
+
+**MagicAffinityBible.md:**
+- Updated version to 3.4.2
+- Updated status to "Complete Phase 3 - Meta-Progression with Visual Polish"
+
+### Documentation
+- Version number updated across all files
+- CHANGELOG.md: Complete v3.4.2 entry with all visual polish changes
+
+---
+
 ## [3.4.1] - 2025-11-15
 
 ### Changed - WIND ELEMENT KNOCKBACK REWORK
