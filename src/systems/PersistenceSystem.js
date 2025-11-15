@@ -6,7 +6,8 @@
  */
 
 const STORAGE_KEY = 'magicAffinityProgression';
-const CURRENT_VERSION = '3.1.3';
+const CURRENT_VERSION = '3.4.6';  // Game version
+const DATA_VERSION = '1.0.0';     // Data structure version (only change when structure changes)
 
 export class PersistenceSystem {
     /**
@@ -15,7 +16,8 @@ export class PersistenceSystem {
      */
     static getDefaultData() {
         return {
-            version: CURRENT_VERSION,
+            version: CURRENT_VERSION,      // Game version (for display)
+            dataVersion: DATA_VERSION,     // Data structure version (for migration)
 
             achievements: {
                 firstBlood: {
@@ -221,10 +223,20 @@ export class PersistenceSystem {
                 return this.getDefaultData();
             }
 
-            // Migrate data if version mismatch
-            if (data.version !== CURRENT_VERSION) {
-                console.log(`[PersistenceSystem] Migrating data from ${data.version} to ${CURRENT_VERSION}`);
+            // Check if data structure migration is needed (v3.4.6: separate data version from game version)
+            const needsMigration = !data.dataVersion || data.dataVersion !== DATA_VERSION;
+
+            if (needsMigration) {
+                console.log(`[PersistenceSystem] Data structure migration needed`);
+                console.log(`[PersistenceSystem] Current data version: ${data.dataVersion || 'legacy'} → ${DATA_VERSION}`);
                 return this.migrateData(data);
+            }
+
+            // Update game version without triggering migration (v3.4.6)
+            if (data.version !== CURRENT_VERSION) {
+                console.log(`[PersistenceSystem] Updating game version: ${data.version} → ${CURRENT_VERSION}`);
+                data.version = CURRENT_VERSION;
+                this.save(data);
             }
 
             console.log('[PersistenceSystem] Data loaded successfully');
@@ -269,6 +281,16 @@ export class PersistenceSystem {
      * @returns {Object} Migrated data
      */
     static migrateData(oldData) {
+        console.log('[PersistenceSystem] ===== MIGRATION START =====');
+        console.log('[PersistenceSystem] Old game version:', oldData.version || 'unknown');
+        console.log('[PersistenceSystem] Old data version:', oldData.dataVersion || 'legacy');
+
+        // Count unlocked achievements before migration
+        const unlockedBefore = oldData.achievements
+            ? Object.keys(oldData.achievements).filter(id => oldData.achievements[id]?.unlocked)
+            : [];
+        console.log('[PersistenceSystem] Unlocked achievements BEFORE migration:', unlockedBefore);
+
         // Merge with defaults to add any missing fields while preserving old data
         const defaultData = this.getDefaultData();
 
@@ -285,14 +307,80 @@ export class PersistenceSystem {
             ...defaultData,
             ...oldData,
             version: CURRENT_VERSION,
+            dataVersion: DATA_VERSION,  // Update data version (v3.4.6)
             achievements: mergedAchievements,
             skillTree: { ...defaultData.skillTree, ...(oldData.skillTree || {}) },
             stats: { ...defaultData.stats, ...(oldData.stats || {}) }
         };
 
+        // Count unlocked achievements after migration
+        const unlockedAfter = Object.keys(migratedData.achievements).filter(
+            id => migratedData.achievements[id].unlocked
+        );
+        console.log('[PersistenceSystem] Unlocked achievements AFTER migration:', unlockedAfter);
+
+        // Verify no progress was lost
+        if (unlockedBefore.length > unlockedAfter.length) {
+            console.error('[PersistenceSystem] ⚠️ WARNING: Achievement progress may have been lost!');
+            console.error('[PersistenceSystem] Lost achievements:',
+                unlockedBefore.filter(id => !unlockedAfter.includes(id))
+            );
+        }
+
+        console.log('[PersistenceSystem] Skill points:', migratedData.skillTree.pointsAvailable);
+        console.log('[PersistenceSystem] Total enemies killed:', migratedData.stats.totalEnemiesKilled);
+        console.log('[PersistenceSystem] ===== MIGRATION COMPLETE =====');
+
         // Save migrated data
         this.save(migratedData);
         return migratedData;
+    }
+
+    /**
+     * Check data integrity (v3.4.6)
+     * @returns {Object} Integrity check results
+     */
+    static checkDataIntegrity() {
+        const data = this.load();
+        const issues = [];
+
+        // Check for missing core objects
+        if (!data.achievements) issues.push('Missing achievements object');
+        if (!data.skillTree) issues.push('Missing skillTree object');
+        if (!data.stats) issues.push('Missing stats object');
+
+        // Check for missing Element Master achievements
+        const elementMasters = ['flame', 'water', 'electric', 'nature', 'wind',
+                               'terra', 'gravity', 'celestial', 'radiant', 'shadow'];
+        elementMasters.forEach(elem => {
+            const id = `${elem}Master`;
+            if (!data.achievements?.[id]) {
+                issues.push(`Missing achievement: ${id}`);
+            }
+        });
+
+        // Check for negative values (corruption indicator)
+        if (data.stats?.totalEnemiesKilled < 0) issues.push('Negative totalEnemiesKilled');
+        if (data.skillTree?.pointsAvailable < 0) issues.push('Negative skill points');
+
+        const result = {
+            passed: issues.length === 0,
+            issues: issues,
+            unlockedCount: data.achievements
+                ? Object.values(data.achievements).filter(a => a.unlocked).length
+                : 0,
+            totalAchievements: data.achievements ? Object.keys(data.achievements).length : 0
+        };
+
+        if (result.passed) {
+            console.log('[PersistenceSystem] ✅ Data integrity check PASSED');
+            console.log(`[PersistenceSystem] Achievements: ${result.unlockedCount}/${result.totalAchievements} unlocked`);
+        } else {
+            console.error('[PersistenceSystem] ❌ Data integrity check FAILED');
+            console.error('[PersistenceSystem] Issues found:', issues);
+        }
+
+        return result;
     }
 
     /**

@@ -7,6 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.4.6] - 2025-11-15
+
+### Fixed - ACHIEVEMENT SYSTEM BUG FIXES
+
+**PersistenceSystem Version Mismatch (CRITICAL):**
+- **Fixed version mismatch causing unnecessary data migrations**
+  - Issue: Version was stuck at 3.1.3 while game was at 3.4.5
+  - Impact: Every page load triggered full data migration (potential progress loss)
+  - Fix: Separated game version (3.4.6) from data structure version (1.0.0)
+  - New behavior: Migration only occurs when data structure actually changes
+  - Location: PersistenceSystem.js lines 9-10, 226-240
+
+**localStorage Availability Check:**
+- **Added warning pop-up when browser storage is disabled**
+  - Dismissible notification appears on main menu
+  - Warns players: "Achievements and progress will NOT save!"
+  - Helps diagnose why progress isn't persisting
+  - Location: CharacterSelectScene.js lines 348-449
+
+**Enhanced Migration Logging:**
+- **Added detailed console logs for debugging migration issues**
+  - Shows unlocked achievements before/after migration
+  - Warns if any achievement progress is lost during migration
+  - Displays skill points, total enemies killed, data versions
+  - Location: PersistenceSystem.js lines 283-337
+
+**Data Integrity Validation:**
+- **Added checkDataIntegrity() function for diagnosing corruption**
+  - Verifies all 15 achievements exist
+  - Checks for missing core objects (achievements, skillTree, stats)
+  - Detects negative values (corruption indicator)
+  - Returns detailed report with unlocked count
+  - Location: PersistenceSystem.js lines 339-384
+
+### Added - TESTING DOCUMENTATION
+
+**Achievement Testing Guide:**
+- Created comprehensive testing document (ACHIEVEMENT_TESTING.md)
+- 5 test scenarios covering all achievement functionality
+- Console commands for debugging achievement tracking
+- Quick cheat commands for testing (Wave 11, enemy kills, etc.)
+- Known issues section with debugging steps
+
+### Documentation
+
+**Updated MagicAffinityBible.md:**
+- Updated version to 3.4.6
+
+---
+
 ## [3.4.5] - 2025-11-15
 
 ### Fixed - CRITICAL UI BUG

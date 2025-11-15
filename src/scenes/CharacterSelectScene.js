@@ -1,6 +1,7 @@
 import { gameState } from '../config/gameState.js';
 import { soundFX } from '../systems/SoundFX.js';
 import { ProgressionSystem } from '../systems/ProgressionSystem.js';
+import { PersistenceSystem } from '../systems/PersistenceSystem.js';
 
 // Character Select Scene
 export class CharacterSelectScene extends Phaser.Scene {
@@ -16,6 +17,9 @@ export class CharacterSelectScene extends Phaser.Scene {
         // Load progression data
         this.progression = new ProgressionSystem();
         const progressionData = this.progression.getData();
+
+        // Check localStorage availability and show warning if not available (v3.4.6)
+        this.checkStorageAvailability();
 
         // Title
         this.add
@@ -98,7 +102,7 @@ export class CharacterSelectScene extends Phaser.Scene {
 
         // Version number (bottom left)
         this.add
-            .text(10, 590, "v3.4.5", {
+            .text(10, 590, "v3.4.6", {
                 fontSize: "14px",
                 fill: "#666666",
                 fontFamily: "Courier New",
@@ -339,5 +343,108 @@ export class CharacterSelectScene extends Phaser.Scene {
                 this.scale.startFullscreen();
             }
         });
+    }
+
+    checkStorageAvailability() {
+        if (!PersistenceSystem.isAvailable()) {
+            // Create semi-transparent overlay
+            const overlay = this.add.rectangle(400, 350, 800, 700, 0x000000, 0.8)
+                .setDepth(2000)
+                .setInteractive();
+
+            // Warning panel
+            const panel = this.add.graphics();
+            panel.fillStyle(0x330000, 1);
+            panel.fillRect(200, 200, 400, 200);
+            panel.lineStyle(4, 0xff0000, 1);
+            panel.strokeRect(200, 200, 400, 200);
+            panel.setDepth(2001);
+
+            // Warning icon
+            this.add
+                .text(400, 240, "⚠️", {
+                    fontSize: "48px"
+                })
+                .setOrigin(0.5)
+                .setDepth(2002);
+
+            // Warning title
+            this.add
+                .text(400, 290, "Browser Storage Disabled", {
+                    fontSize: "20px",
+                    fill: "#ff4444",
+                    fontFamily: "Courier New",
+                    fontStyle: "bold"
+                })
+                .setOrigin(0.5)
+                .setDepth(2002);
+
+            // Warning message
+            this.add
+                .text(400, 320, "Achievements and progress will NOT save!", {
+                    fontSize: "14px",
+                    fill: "#ff8888",
+                    fontFamily: "Courier New"
+                })
+                .setOrigin(0.5)
+                .setDepth(2002);
+
+            // Dismiss button
+            const dismissButton = this.add.graphics();
+            dismissButton.fillStyle(0xff4444, 1);
+            dismissButton.fillRect(325, 350, 150, 35);
+            dismissButton.lineStyle(2, 0xffffff, 1);
+            dismissButton.strokeRect(325, 350, 150, 35);
+            dismissButton.setDepth(2002);
+            dismissButton.setInteractive(
+                new Phaser.Geom.Rectangle(325, 350, 150, 35),
+                Phaser.Geom.Rectangle.Contains
+            );
+
+            const dismissText = this.add
+                .text(400, 367, "OK", {
+                    fontSize: "18px",
+                    fill: "#ffffff",
+                    fontFamily: "Courier New",
+                    fontStyle: "bold"
+                })
+                .setOrigin(0.5)
+                .setDepth(2003);
+
+            // Hover effect
+            dismissButton.on("pointerover", () => {
+                dismissButton.clear();
+                dismissButton.fillStyle(0xff6666, 1);
+                dismissButton.fillRect(325, 350, 150, 35);
+                dismissButton.lineStyle(2, 0xffffff, 1);
+                dismissButton.strokeRect(325, 350, 150, 35);
+                this.input.setDefaultCursor("pointer");
+                soundFX.play("hover");
+            });
+
+            dismissButton.on("pointerout", () => {
+                dismissButton.clear();
+                dismissButton.fillStyle(0xff4444, 1);
+                dismissButton.fillRect(325, 350, 150, 35);
+                dismissButton.lineStyle(2, 0xffffff, 1);
+                dismissButton.strokeRect(325, 350, 150, 35);
+                this.input.setDefaultCursor("default");
+            });
+
+            // Dismiss notification
+            dismissButton.on("pointerdown", () => {
+                soundFX.play("select");
+                overlay.destroy();
+                panel.destroy();
+                dismissButton.destroy();
+                dismissText.destroy();
+                // Destroy all text objects
+                this.children.list.forEach(child => {
+                    if (child.depth >= 2002 && child.type === 'Text') {
+                        child.destroy();
+                    }
+                });
+            });
+        }
     }
 }
