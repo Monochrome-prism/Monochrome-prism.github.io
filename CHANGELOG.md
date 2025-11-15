@@ -7,6 +7,141 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.4.0] - 2025-11-15
+
+### Added - MAGNET POWER-UP (4TH TREASURE CHEST ITEM)
+- **Magnet Buff:** New treasure chest drop that pulls XP orbs for 15 seconds
+  - 25% drop chance (equal with Red Potion, Sword, Gold Potion)
+  - Pull speed: 300 pixels/second toward player
+  - Silver/gray color theme (0xC0C0C0)
+  - Stops when within 5px to avoid jittering
+  - All XP orb velocities reset to 0 when buff expires
+  - Location: GameScene.js lines 3796-3802 (collection), 2859-2879 (pull logic)
+
+- **Magnet UI:**
+  - 🧲 emoji icon with silver background
+  - Countdown timer in top-right corner
+  - Buff expiration message: "Magnet Expired"
+  - Location: GameScene.js lines 4051-4074 (icon display), 3943-3956 (expiration)
+
+- **JSDoc Properties:**
+  - Added `hasMagnet` and `magnetEndTime` to Player typedef
+  - Location: game-types.js lines 91-92
+
+### Changed - STACKABLE CRITICAL STRIKE UPGRADE
+- **Critical Strike:** Now stackable up to 4 times (was one-time unlock)
+  - **Stack 1:** 25% crit chance (was 15%)
+  - **Stack 2:** 50% crit chance
+  - **Stack 3:** 75% crit chance
+  - **Stack 4:** 100% crit chance (guaranteed crits!)
+  - Always 2x damage multiplier
+  - Automatically removed from upgrade pool after 4th stack
+  - Location: UpgradeSystem.js lines 921-950, 978-981
+
+- **Dynamic Upgrade Card:**
+  - Shows progression: "50% → 75% crit chance\n2x damage"
+  - First stack: "25% chance for 2x damage"
+  - Uses `getDescription()` function for dynamic text
+  - Location: UpgradeSystem.js lines 925-936
+
+- **JSDoc Updates:**
+  - Added `critStacks` property to Player typedef (max 4)
+  - Updated `critChance` description (0.25 per stack)
+  - Updated `critMultiplier` description (always 2x)
+  - Location: game-types.js lines 38-40
+
+### Changed - TREASURE CHEST VISUAL IMPROVEMENTS
+- **Chest Size:** Doubled from 12x12px to 24x24px for better visibility
+  - Latch size: 4x2 → 8x4
+  - Lock radius: 1.5 → 3
+  - Location: DrawingHelpers.js lines 514-531
+
+- **Gold Outline:** Added 2px thick gold stroke (0xFFD700) around chest
+  - Makes chests stand out against backgrounds
+  - Location: DrawingHelpers.js line 515
+
+- **Collision Radius:** Increased from 15px to 30px (doubled for 2x size)
+  - Location: EnemySystem.js line 648
+
+- **Drop Distribution:** Updated from 3 items (33.33% each) to 4 items (25% each)
+  - Red Potion: 33.33% → 25%
+  - Sword: 33.33% → 25%
+  - Gold Potion: 33.33% → 25%
+  - Magnet: NEW 25%
+  - Location: GameScene.js lines 3766-3802
+
+### Changed - TERRA ELEMENT ICON
+- **Icon Update:** Changed from 🪨 (rock) to ⛰️ (mountain emoji)
+  - **Reason:** Rock emoji shows as blank square on many browsers
+  - Mountain emoji has better cross-browser support
+  - Location: elements.js line 52
+
+### Fixed - CRITICAL BUGS
+- **Critical Strike Color:** Fixed hardcoded red color bug
+  - **Root Cause:** Color parameter was passed but ignored (line 4228)
+  - **Fix:** Use color parameter in both pooled and new text objects
+  - Crit popups now correctly show gold (0xFFD700) instead of red
+  - Location: GameScene.js lines 4220, 4228
+
+- **Achievement Tracking:** Fixed "First Blood" and ALL achievements not unlocking
+  - **Root Cause:** Used faulty calculation instead of `enemiesKilled` counter
+  - **Old Code:** `getCurrentWave() * getEnemiesThisWave() - getEnemiesAlive()`
+  - **New Code:** `this.enemiesKilled` (proper counter incremented at line 3569)
+  - All achievements can now unlock out of order
+  - Location: GameScene.js line 4448
+
+- **Achievement Debugging:** Added comprehensive console logging
+  - Logs all achievement checks with conditions
+  - Logs unlock events and save results
+  - Helps identify which achievements are failing and why
+  - Location: ProgressionSystem.js lines 38-153
+
+### Technical
+- **GameScene.js:**
+  - Fixed color parameter in `showDamageNumber()` (lines 4220, 4228)
+  - Fixed `enemiesKilled` tracking (line 4448)
+  - Updated `collectTreasureChest()` for 4-item distribution (lines 3766-3802)
+  - Added magnet pull logic in `update()` (lines 2859-2879)
+  - Added magnet expiration in `updateBuffTimers()` (lines 3943-3956)
+  - Added magnet icon in `drawBuffIcons()` (lines 4051-4074)
+
+- **UpgradeSystem.js:**
+  - Added `crit_chance: 0` to BASE_VALUES (line 68)
+  - Updated Critical Strike to stackable (lines 921-950)
+  - Added `getDescription()` for dynamic text (lines 925-936)
+  - Added stack filter (max 4) in `generateUpgradeOptions()` (lines 978-981)
+
+- **DrawingHelpers.js:**
+  - Doubled chest size and added gold outline (lines 514-531)
+
+- **EnemySystem.js:**
+  - Updated chest collision radius from 15px to 30px (line 648)
+
+- **elements.js:**
+  - Updated Terra icon from 🪨 to ⛰️ (line 52)
+
+- **game-types.js:**
+  - Added `critStacks` property to Player typedef (line 38)
+  - Updated crit property descriptions (lines 39-40)
+  - Added `hasMagnet` and `magnetEndTime` properties (lines 91-92)
+
+- **ProgressionSystem.js:**
+  - Added comprehensive debugging logs for all achievements (lines 38-153)
+  - Logs runData, progress, unlock events, and save results
+
+### Documentation
+- **MagicAffinityBible.md:** (to be updated)
+  - Version: 3.3.2 → 3.4.0
+  - Updated Critical Strike to stackable (4 stacks max)
+  - Updated Treasure Chest section (4 items, 25% each, added Magnet)
+  - Updated Terra icon documentation (⛰️)
+  - Updated chest visual specs (24x24px with gold outline)
+
+- **CharacterSelectScene.js:** (to be updated)
+  - Version number: v3.3.2 → v3.4.0
+
+---
+
 ## [3.3.2] - 2025-11-15
 
 ### Added - TREASURE CHEST SYSTEM

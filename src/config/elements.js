@@ -49,7 +49,7 @@ export const ELEMENTS = {
     },
     terra: {
         name: "Terra",
-        icon: "🪨",
+        icon: "⛰️",  // Changed from 🪨 (rock) to ⛰️ (mountain) for better browser support (v3.4.0)
         color: 0x8b4513, // Brown
         description: "Strong knockback",
         effect: "knockback"

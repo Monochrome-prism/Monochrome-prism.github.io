@@ -35,20 +35,29 @@ export class ProgressionSystem {
     checkAchievements(runData) {
         const newlyUnlocked = [];
 
+        console.log('[ProgressionSystem] Checking achievements with runData:', runData);
+
         // First Blood: Kill 100 enemies (lifetime)
         if (!this.data.achievements.firstBlood.unlocked) {
             this.data.stats.totalEnemiesKilled += runData.enemiesKilled || 0;
             this.data.achievements.firstBlood.progress = this.data.stats.totalEnemiesKilled;
 
+            console.log(`[ProgressionSystem] First Blood progress: ${this.data.stats.totalEnemiesKilled}/100`);
+
             if (this.data.stats.totalEnemiesKilled >= 100) {
                 this.unlockAchievement('firstBlood');
                 newlyUnlocked.push('firstBlood');
             }
+        } else {
+            console.log('[ProgressionSystem] First Blood already unlocked');
         }
 
         // Untouchable: Reach Wave 6 without taking damage
         if (!this.data.achievements.untouchable.unlocked) {
+            console.log(`[ProgressionSystem] Untouchable check: damageTaken=${runData.damageTaken}, waveReached=${runData.waveReached}`);
+
             if (runData.damageTaken === 0 && runData.waveReached >= 6) {
+                console.log('[ProgressionSystem] Untouchable UNLOCKED!');
                 this.unlockAchievement('untouchable');
                 newlyUnlocked.push('untouchable');
             } else if (runData.damageTaken === 0) {
@@ -57,28 +66,40 @@ export class ProgressionSystem {
                     this.data.achievements.untouchable.bestWaveNoHit,
                     runData.waveReached
                 );
+                console.log(`[ProgressionSystem] Untouchable best wave no-hit: ${this.data.achievements.untouchable.bestWaveNoHit}`);
             }
+        } else {
+            console.log('[ProgressionSystem] Untouchable already unlocked');
         }
 
         // Element Master: Reach Wave 7 with all 10 elements
         if (!this.data.achievements.elementMaster.unlocked) {
+            console.log(`[ProgressionSystem] Element Master check: element=${runData.element}, waveReached=${runData.waveReached}`);
+
             if (runData.element && runData.waveReached >= 7) {
                 // Add element to completed list if not already there
                 if (!this.data.achievements.elementMaster.elementsCompleted.includes(runData.element)) {
                     this.data.achievements.elementMaster.elementsCompleted.push(runData.element);
+                    console.log(`[ProgressionSystem] Element Master: Added ${runData.element}. Progress: ${this.data.achievements.elementMaster.elementsCompleted.length}/10`);
                 }
 
                 // Check if all 10 elements complete
                 if (this.data.achievements.elementMaster.elementsCompleted.length >= 10) {
+                    console.log('[ProgressionSystem] Element Master UNLOCKED!');
                     this.unlockAchievement('elementMaster');
                     newlyUnlocked.push('elementMaster');
                 }
             }
+        } else {
+            console.log('[ProgressionSystem] Element Master already unlocked');
         }
 
         // Speed Demon: Reach Wave 10 in under 10 minutes
         if (!this.data.achievements.speedDemon.unlocked) {
+            console.log(`[ProgressionSystem] Speed Demon check: waveReached=${runData.waveReached}, survivalTime=${runData.survivalTime}s`);
+
             if (runData.waveReached >= 10 && runData.survivalTime <= 600) {
+                console.log('[ProgressionSystem] Speed Demon UNLOCKED!');
                 this.unlockAchievement('speedDemon');
                 newlyUnlocked.push('speedDemon');
             } else if (runData.waveReached >= 10) {
@@ -87,15 +108,25 @@ export class ProgressionSystem {
                     this.data.achievements.speedDemon.bestTime,
                     runData.survivalTime
                 );
+                console.log(`[ProgressionSystem] Speed Demon best time: ${this.data.achievements.speedDemon.bestTime}s`);
             }
+        } else {
+            console.log('[ProgressionSystem] Speed Demon already unlocked');
         }
 
         // Element Master achievements: Reach Wave 11 with specific element
         if (runData.element && runData.waveReached >= 11) {
             const elementMasterId = `${runData.element}Master`;
+            console.log(`[ProgressionSystem] Element Master check: ${elementMasterId}, waveReached=${runData.waveReached}`);
+
             if (this.data.achievements[elementMasterId] && !this.data.achievements[elementMasterId].unlocked) {
+                console.log(`[ProgressionSystem] ${elementMasterId} UNLOCKED!`);
                 this.unlockAchievement(elementMasterId);
                 newlyUnlocked.push(elementMasterId);
+            } else if (this.data.achievements[elementMasterId]?.unlocked) {
+                console.log(`[ProgressionSystem] ${elementMasterId} already unlocked`);
+            } else {
+                console.log(`[ProgressionSystem] WARNING: Achievement ${elementMasterId} not found in data!`);
             }
         }
 
@@ -117,7 +148,9 @@ export class ProgressionSystem {
         this.data.stats.totalLevelsGained += runData.levelReached || 0;
 
         // Save progress
-        this.save();
+        const saveSuccess = this.save();
+        console.log(`[ProgressionSystem] Save result: ${saveSuccess ? 'SUCCESS' : 'FAILED'}`);
+        console.log(`[ProgressionSystem] Newly unlocked achievements:`, newlyUnlocked);
 
         return newlyUnlocked;
     }

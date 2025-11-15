@@ -2856,6 +2856,28 @@ class GameScene extends Phaser.Scene {
         }
         this.drawBuffIcons();
 
+        // Magnet buff: Pull XP orbs to player (v3.4.0+)
+        if (this.player.hasMagnet && this.xpOrbs) {
+            this.xpOrbs.getChildren().forEach(orb => {
+                if (!orb.active || !orb.body) return;
+
+                // Calculate direction to player
+                const dx = this.player.x - orb.x;
+                const dy = this.player.y - orb.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance > 5) {  // Stop when very close to avoid jittering
+                    const speed = 300;  // Pull speed (pixels/second)
+                    const vx = (dx / distance) * speed;
+                    const vy = (dy / distance) * speed;
+                    orb.body.setVelocity(vx, vy);
+                } else {
+                    // Stop velocity when close enough
+                    orb.body.setVelocity(0, 0);
+                }
+            });
+        }
+
         // Player movement
         this.player.body.setVelocity(0);
 
@@ -3759,12 +3781,12 @@ class GameScene extends Phaser.Scene {
     collectTreasureChest(player, chest) {
         if (!chest.active) return;
 
-        // Roll for random item (equal 33.33% chance each)
+        // Roll for random item (v3.4.0: 4 items, 25% chance each)
         const roll = Math.random();
         const time = this.time.now;
 
-        if (roll < 0.3333) {
-            // RED POTION - Heal 50% max HP
+        if (roll < 0.25) {
+            // RED POTION (25%) - Heal 50% max HP
             const healAmount = Math.floor(this.player.maxHealth * 0.5);
             const actualHeal = Math.min(healAmount, this.player.maxHealth - this.player.health);
 
@@ -3777,25 +3799,33 @@ class GameScene extends Phaser.Scene {
             this.showItemPickupMessage("Red Potion!", 0xFF0000);
             soundFX.play("collect");
 
-        } else if (roll < 0.6666) {
-            // SWORD - Double damage for 15 seconds
+        } else if (roll < 0.50) {
+            // SWORD (25%) - Double damage for 15 seconds
             this.player.hasDoubleDamage = true;
             this.player.doubleDamageEndTime = time + 15000;
 
             this.showItemPickupMessage("Double Damage!", 0xFF0000);
             soundFX.play("powerup");
 
-        } else {
-            // GOLD POTION - Invincibility for 15 seconds
+        } else if (roll < 0.75) {
+            // GOLD POTION (25%) - Invincibility for 15 seconds
             this.player.hasInvincibility = true;
             this.player.invincibilityEndTime = time + 15000;
 
             this.showItemPickupMessage("Invincibility!", 0xFFD700);
             soundFX.play("powerup");
+
+        } else {
+            // MAGNET (25%) - Pull XP orbs for 15 seconds (v3.4.0+)
+            this.player.hasMagnet = true;
+            this.player.magnetEndTime = time + 15000;
+
+            this.showItemPickupMessage("Magnet!", 0xC0C0C0);  // Silver color
+            soundFX.play("powerup");
         }
 
         // Update health bar if healed
-        if (roll < 0.3333) {
+        if (roll < 0.25) {
             this.uiSystem.updateHealthBar(this.player);
         }
 
@@ -3909,6 +3939,21 @@ class GameScene extends Phaser.Scene {
             this.player.hasInvincibility = false;
             this.showBuffExpiredMessage("Invincibility Expired");
         }
+
+        // Check magnet expiration (v3.4.0+)
+        if (this.player.hasMagnet && time >= this.player.magnetEndTime) {
+            this.player.hasMagnet = false;
+            this.showBuffExpiredMessage("Magnet Expired");
+
+            // Stop all XP orb velocities when magnet expires
+            if (this.xpOrbs) {
+                this.xpOrbs.getChildren().forEach(orb => {
+                    if (orb.active && orb.body) {
+                        orb.body.setVelocity(0, 0);
+                    }
+                });
+            }
+        }
     }
 
     /**
@@ -3984,6 +4029,33 @@ class GameScene extends Phaser.Scene {
             // Gold background
             const bg = this.add.graphics();
             bg.fillStyle(0xFFD700, 0.3);
+            bg.fillRoundedRect(650, yOffset - 5, 140, 30, 5);
+            bg.setDepth(150);
+
+            // Text
+            const buffText = this.add.text(660, yOffset, text, {
+                fontSize: "20px",
+                fill: "#FFFFFF",
+                fontFamily: "Courier New",
+                fontStyle: "bold",
+            });
+            buffText.setDepth(151);
+
+            // Store references for cleanup
+            if (!this.buffUIElements) this.buffUIElements = [];
+            this.buffUIElements.push(bg, buffText);
+
+            yOffset += 35;
+        }
+
+        // Magnet buff (v3.4.0+)
+        if (this.player.hasMagnet) {
+            const timeLeft = Math.ceil((this.player.magnetEndTime - time) / 1000);
+            const text = `🧲 ${timeLeft}s`;
+
+            // Silver/gray background
+            const bg = this.add.graphics();
+            bg.fillStyle(0xC0C0C0, 0.3);
             bg.fillRoundedRect(650, yOffset - 5, 140, 30, 5);
             bg.setDepth(150);
 
@@ -4217,6 +4289,7 @@ class GameScene extends Phaser.Scene {
             // Reuse existing text object
             text.setText(damage.toString());
             text.setPosition(x, y - 20 * this.mobileScale);
+            text.setStyle({ fill: `#${color.toString(16).padStart(6, '0')}` });  // Update color (v3.4.0 fix)
             text.setAlpha(1);
             text.setActive(true);
             text.setVisible(true);
@@ -4225,7 +4298,7 @@ class GameScene extends Phaser.Scene {
             text = this.add
                 .text(x, y - 20 * this.mobileScale, damage.toString(), {
                     fontSize: `${fontSize}px`,
-                    fill: "#ff0000",
+                    fill: `#${color.toString(16).padStart(6, '0')}`,  // Use color parameter (v3.4.0 fix)
                     fontFamily: "Courier New",
                     fontStyle: "bold",
                     stroke: "#000000",
@@ -4444,8 +4517,7 @@ class GameScene extends Phaser.Scene {
         // Save game stats
         gameState.currentLevel = this.player.level;
         gameState.totalXP = this.player.xp;
-        gameState.enemiesKilled =
-            this.waveSystem.getCurrentWave() * this.waveSystem.getEnemiesThisWave() - this.waveSystem.getEnemiesAlive();
+        gameState.enemiesKilled = this.enemiesKilled;  // Use counter, not calculation (v3.4.0 fix)
         gameState.survivalTime = this.survivalTime;
 
         this.cameras.main.fade(1000, 0, 0, 0);

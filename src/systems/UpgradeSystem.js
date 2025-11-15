@@ -63,6 +63,9 @@ const BASE_VALUES = {
     // Shadow
     fear_chance: 10,
     life_steal_percent: 0,
+
+    // Universal (v3.4.0+)
+    crit_chance: 0,  // Base crit chance (0%, +25% per stack)
 };
 
 export class UpgradeSystem {
@@ -918,11 +921,31 @@ export class UpgradeSystem {
             {
                 name: "Critical Strike",
                 icon: "💥",
-                description: "15% chance for 2x damage",
+                description: "25% chance for 2x damage",  // First stack description
+                getDescription: (player) => {
+                    // v3.4.0+: Stackable upgrade with dynamic description
+                    const stacks = player.critStacks || 0;
+                    const currentChance = BASE_VALUES.crit_chance + (stacks * 25);
+                    const nextChance = BASE_VALUES.crit_chance + ((stacks + 1) * 25);
+
+                    if (stacks === 0) {
+                        return "25% chance for 2x damage";
+                    } else {
+                        return `${currentChance}% → ${nextChance}% crit chance\n2x damage`;
+                    }
+                },
                 apply: () => {
+                    // v3.4.0+: Stackable (max 4 times)
+                    if (!this.player.critStacks) {
+                        this.player.critStacks = 0;
+                    }
+
+                    this.player.critStacks += 1;
                     this.player.hasCriticalStrike = true;
-                    this.player.critChance = 0.15;
-                    this.player.critMultiplier = 2.0;
+                    this.player.critChance = (this.player.critStacks * 25) / 100;  // 25%, 50%, 75%, 100%
+                    this.player.critMultiplier = 2.0;  // Always 2x damage
+
+                    console.log(`Critical Strike upgraded! Stack ${this.player.critStacks}/4 - ${this.player.critChance * 100}% chance`);
                 },
             },
             {
@@ -950,6 +973,10 @@ export class UpgradeSystem {
             }
             // Armor Boost can only be selected twice
             if (upgrade.name === "Armor Boost" && (this.player.armorBoostCount || 0) >= 2) {
+                return false;
+            }
+            // Critical Strike can only be selected 4 times (v3.4.0+)
+            if (upgrade.name === "Critical Strike" && (this.player.critStacks || 0) >= 4) {
                 return false;
             }
             return true;
