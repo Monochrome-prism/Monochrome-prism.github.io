@@ -136,7 +136,7 @@ export class WaveSystem {
     completeWave() {
         this.currentWave++;
         this.enemiesThisWave = Math.floor(
-            this.enemiesThisWave * 1.3,
+            this.enemiesThisWave * 1.2, // Reduced from 1.3 to 1.2 (v3.4.1)
         );
 
         // Mobile optimization: cap enemy count to prevent lag

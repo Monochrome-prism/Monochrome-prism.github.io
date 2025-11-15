@@ -36,8 +36,8 @@ export class GameOverScene extends Phaser.Scene {
         panelGraphics.lineStyle(3, 0x4a4a5a, 1);
         panelGraphics.strokeRect(200, 180, 400, 280);
 
-        // Stats (always wizard now)
-        const charName = "Wizard";
+        // Stats (always NUXX now) (v3.4.1)
+        const charName = "NUXX";
         const stats = [
             `Character: ${charName}`,
             `Final Level: ${gameState.currentLevel}`,

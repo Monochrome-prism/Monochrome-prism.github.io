@@ -56,7 +56,7 @@ export class UISystem {
 
         // Character name (will update when element is chosen)
         this.charNameText = this.scene.add
-            .text(20, 615, "WIZARD", {
+            .text(20, 615, "NUXX", {
                 fontSize: `${Math.floor(14 * scale)}px`,
                 fill: "#ffd700",
                 fontFamily: "Courier New",
@@ -245,8 +245,8 @@ export class UISystem {
         const elementKey = elementName.toLowerCase();
         const elementIcon = ELEMENTS[elementKey]?.icon || '';
 
-        // Update text with icon before WIZARD
-        this.charNameText.setText(`${elementIcon} WIZARD`);
+        // Update text with icon before NUXX (v3.4.1)
+        this.charNameText.setText(`${elementIcon} NUXX`);
     }
 
     /**

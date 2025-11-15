@@ -133,12 +133,21 @@ export class ProgressionSystem {
         // Track best wave for each element master achievement (even if not unlocked yet)
         if (runData.element) {
             const elementMasterId = `${runData.element}Master`;
+            console.log(`[ProgressionSystem] Tracking best wave for ${elementMasterId}: current=${this.data.achievements[elementMasterId]?.bestWave || 0}, thisRun=${runData.waveReached}`);
             if (this.data.achievements[elementMasterId]) {
+                const previousBest = this.data.achievements[elementMasterId].bestWave || 0;
                 this.data.achievements[elementMasterId].bestWave = Math.max(
-                    this.data.achievements[elementMasterId].bestWave || 0,
+                    previousBest,
                     runData.waveReached
                 );
+                console.log(`[ProgressionSystem] Updated ${elementMasterId}.bestWave: ${previousBest} → ${this.data.achievements[elementMasterId].bestWave}`);
+            } else {
+                console.log(`[ProgressionSystem] WARNING: Achievement ${elementMasterId} does not exist in data.achievements!`);
+                console.log(`[ProgressionSystem] Available achievements:`, Object.keys(this.data.achievements));
             }
+        } else {
+            console.log(`[ProgressionSystem] WARNING: runData.element is not set! Cannot track element master progress.`);
+            console.log(`[ProgressionSystem] runData:`, runData);
         }
 
         // Update global stats
