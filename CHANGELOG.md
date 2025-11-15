@@ -7,6 +7,116 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.3.2] - 2025-11-15
+
+### Added - TREASURE CHEST SYSTEM
+- **Enemy Loot Drops:** 5% chance for enemies to drop treasure chests on death
+  - Brown chest with gold latch and lock visual
+  - Gentle bobbing animation (±5px vertical)
+  - 15 second lifespan before despawn
+  - Blinking warning after 5 seconds (200ms intervals)
+  - Auto-pickup on contact (20px radius)
+  - Location: EnemySystem.js lines 237-244, 631-667
+
+- **Three Buff Items (equal drop chance):**
+  1. **Red Potion 🧪** - Heals 50% of max HP instantly
+     - Shows green "+X HP" healing effect with particles
+     - Visual feedback even at full HP
+
+  2. **Sword ⚔️** - Double damage for 15 seconds
+     - Multiplicative with critical strikes (2x × 2x = 4x!)
+     - Applied BEFORE crit calculation
+     - Shows buff icon with countdown in top-right corner
+
+  3. **Gold Potion ✨** - Invincibility for 15 seconds
+     - Immune to all enemy damage (contact + boss lasers)
+     - Pulsing gold ring visual effect around player
+     - Shows buff icon with countdown in top-right corner
+
+  - **Buff Stacking:** Picking up same buff type refreshes duration to full 15s
+  - **Multiple Buffs:** Can have Sword + Invincibility active simultaneously
+  - Location: GameScene.js lines 3710-3954
+
+- **Visual Feedback Systems:**
+  - Healing effect: Green "+X HP" text with particle sparkles
+  - Item pickup message: Center screen fade message
+  - Buff icons: Top-right corner with emoji, colored background, countdown timer
+  - Buff expiration: Gray "Buff Expired!" message
+  - Invincibility glow: Pulsing gold ring (sine wave animation)
+  - Location: GameScene.js lines 3757-3828, 3018-3033
+
+- **Invincibility Implementation:**
+  - Blocks player-enemy collision damage (playerHitEnemy)
+  - Blocks boss laser damage (fireBossLaser)
+  - Does NOT block environmental hazard damage
+  - Location: GameScene.js line 4254, EnemySystem.js line 372-380
+
+- **Drawing Functions:**
+  - `drawTreasureChest()` - Brown box with gold latch
+  - `drawPotionIcon(color)` - Bottle with cork and liquid shine
+  - `drawSwordIcon()` - Silver blade with gold guard
+  - Location: DrawingHelpers.js lines 318-395
+
+### Changed - VISUAL ENHANCEMENTS
+- **Critical Strike Popup:**
+  - Color: Yellow (0xFFFF00) → Gold (0xFFD700) for richer appearance
+  - Font size: 28px → 32px (14% larger)
+  - Stroke thickness: 4px → 6px (50% thicker, better visibility)
+  - Location: GameScene.js lines 3822, 3896-3898
+
+- **Player Skin Color:**
+  - Skin/Hands: 0xFFE4C4 → 0xFFF5E1 (~10% whiter, purer beige tone)
+  - Location: DrawingHelpers.js line 24
+
+### Technical
+- **GameScene.js:**
+  - Added `treasureChests` physics group (line 124)
+  - Added collision detection for chest pickup (lines 230-236)
+  - Modified `applyDamage()` to apply double damage BEFORE crit check (lines 3807-3820)
+  - Added `collectTreasureChest()` function (lines 3710-3755)
+  - Added `showHealingEffect()` function (lines 3757-3787)
+  - Added `showItemPickupMessage()` function (lines 3789-3810)
+  - Added `updateBuffTimers()` function (lines 3812-3826)
+  - Added `showBuffExpiredMessage()` function (lines 3828-3849)
+  - Added `drawBuffIcons()` function (lines 3851-3954)
+  - Modified `update()` to call buff timers and draw buff UI (lines 2849-2857)
+  - Added chest despawn/blink logic (lines 2996-3016)
+  - Added invincibility glow effect (lines 3018-3033)
+  - Modified `playerHitEnemy()` to check invincibility (line 4254)
+
+- **EnemySystem.js:**
+  - Modified `killEnemy()` to spawn chest with 5% chance (lines 237-244)
+  - Added `spawnTreasureChest()` function (lines 631-667)
+  - Modified `fireBossLaser()` to check invincibility buff (lines 372-380)
+
+- **DrawingHelpers.js:**
+  - Updated skin color constant (line 24)
+  - Added `drawTreasureChest()` function (lines 318-337)
+  - Added `drawPotionIcon()` function (lines 339-358)
+  - Added `drawSwordIcon()` function (lines 360-395)
+
+- **game-types.js:**
+  - Added treasure chest buff properties to Player typedef (lines 86-91):
+    - `hasDoubleDamage`, `doubleDamageEndTime`
+    - `hasInvincibility`, `invincibilityEndTime`
+
+### Documentation
+- **MagicAffinityBible.md:**
+  - Version bumped: 3.3.1 → 3.3.2 (line 3)
+  - Updated last updated date to November 15, 2025 (line 4)
+  - Updated player skin color documentation (line 146)
+  - Updated Critical Strike upgrade description (line 490)
+  - Added "Treasure Chest System" section (lines 658-712):
+    - Drop mechanics and persistence
+    - All three buff items with detailed stats
+    - Buff features and interaction rules
+    - Sound effects and visual feedback
+
+- **CHANGELOG.md:**
+  - Version bumped: 3.3.1 → 3.3.2
+
+---
+
 ## [3.3.1] - 2025-11-14
 
 ### Changed - PLAYER SPRITE ENHANCEMENTS

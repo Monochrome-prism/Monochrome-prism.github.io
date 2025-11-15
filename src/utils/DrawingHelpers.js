@@ -22,7 +22,7 @@ export function drawSuitedMan(player) {
         elementColor = ELEMENTS[player.element].color;
     }
 
-    const skinColor = 0xFFE4C4; // Pale beige
+    const skinColor = 0xFFF5E1; // Slightly whiter beige
     const blackColor = 0x000000; // Black sunglasses (always black!)
 
     // Calculate darker brim color (0.8x brightness)
@@ -501,4 +501,84 @@ export function drawBomber(graphics) {
     graphics.fillStyle(0x4a2d5e, 1);
     graphics.fillRect(-5, 8, 4, 4);
     graphics.fillRect(1, 8, 4, 4);
+}
+
+/**
+ * Draw treasure chest (brown box with gold latch) - v3.3.2+
+ * @param {Phaser.GameObjects.Graphics} graphics - Graphics object
+ * @returns {void}
+ */
+export function drawTreasureChest(graphics) {
+    graphics.clear();
+
+    // Brown box body
+    graphics.fillStyle(0x8B4513, 1); // Saddle brown
+    graphics.fillRect(-6, -6, 12, 12);
+
+    // Darker brown outline
+    graphics.lineStyle(1, 0x654321, 1);
+    graphics.strokeRect(-6, -6, 12, 12);
+
+    // Gold latch (horizontal bar)
+    graphics.fillStyle(0xFFD700, 1);
+    graphics.fillRect(-2, -1, 4, 2);
+
+    // Gold lock (circle)
+    graphics.fillCircle(0, 0, 1.5);
+}
+
+/**
+ * Draw potion icon (bottle shape) - v3.3.2+
+ * @param {Phaser.GameObjects.Graphics} graphics - Graphics object
+ * @param {number} color - Potion liquid color (0xRRGGBB)
+ * @returns {void}
+ */
+export function drawPotionIcon(graphics, color) {
+    graphics.clear();
+
+    // Cork
+    graphics.fillStyle(0x8B4513, 1); // Brown cork
+    graphics.fillRect(-1.5, -10, 3, 1);
+
+    // Bottle neck
+    graphics.fillStyle(color, 0.8);
+    graphics.fillRect(-2, -9, 4, 2);
+
+    // Bottle body
+    graphics.fillStyle(color, 1);
+    graphics.fillRect(-3, -7, 6, 10);
+
+    // Glass outline
+    graphics.lineStyle(1, 0xCCCCCC, 0.5);
+    graphics.strokeRect(-3, -7, 6, 10);
+
+    // Liquid shine (white highlight)
+    graphics.fillStyle(0xFFFFFF, 0.6);
+    graphics.fillCircle(-1, -4, 1);
+}
+
+/**
+ * Draw sword icon - v3.3.2+
+ * @param {Phaser.GameObjects.Graphics} graphics - Graphics object
+ * @returns {void}
+ */
+export function drawSwordIcon(graphics) {
+    graphics.clear();
+
+    // Blade (triangle + rectangle)
+    graphics.fillStyle(0xC0C0C0, 1); // Silver
+    graphics.fillTriangle(0, -6, -1.5, -2, 1.5, -2); // Point
+    graphics.fillRect(-1, -2, 2, 6); // Blade body
+
+    // Guard (horizontal bar)
+    graphics.fillStyle(0xFFD700, 1); // Gold guard
+    graphics.fillRect(-3, 3, 6, 1);
+
+    // Handle
+    graphics.fillStyle(0x8B4513, 1); // Brown handle
+    graphics.fillRect(-0.5, 4, 1, 3);
+
+    // Pommel
+    graphics.fillStyle(0xFFD700, 1); // Gold pommel
+    graphics.fillCircle(0, 7, 1.5);
 }

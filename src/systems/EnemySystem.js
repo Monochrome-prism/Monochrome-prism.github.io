@@ -6,7 +6,7 @@
  */
 
 import { soundFX } from './SoundFX.js';
-import { drawBoss, drawSlime, drawGoblin, drawTank, drawBomber } from '../utils/DrawingHelpers.js';
+import { drawBoss, drawSlime, drawGoblin, drawTank, drawBomber, drawTreasureChest } from '../utils/DrawingHelpers.js';
 import { createBossDeathEffect, createDeathEffect } from '../utils/StatusEffectHelpers.js';
 import { getSpawnPositionOnEdge } from '../utils/MathHelpers.js';
 
@@ -238,6 +238,11 @@ export class EnemySystem {
         // Spawn XP orb
         spawnXPOrbCallback(enemy.x, enemy.y, enemy.xpValue);
 
+        // 5% chance to spawn treasure chest (v3.3.2+)
+        if (Math.random() < 0.05) {
+            this.spawnTreasureChest(enemy.x, enemy.y);
+        }
+
         // Add score
         updateScoreCallback(enemy.scoreValue);
 
@@ -370,7 +375,8 @@ export class EnemySystem {
                     playerCircle,
                 ) &&
                 !this.player.invulnerable &&
-                !this.player.isLevelingUp
+                !this.player.isLevelingUp &&
+                !this.player.hasInvincibility
             ) {
                 const damage = 25;
                 this.player.health -= damage;
@@ -620,6 +626,44 @@ export class EnemySystem {
             duration: 500,
             yoyo: true,
             repeat: -1,
+        });
+    }
+
+    /**
+     * Spawn a treasure chest at a location (v3.3.2+)
+     * @param {number} x - X position
+     * @param {number} y - Y position
+     * @returns {void}
+     */
+    spawnTreasureChest(x, y) {
+        const chest = this.scene.add.graphics();
+        chest.x = x;
+        chest.y = y;
+
+        // Draw treasure chest
+        drawTreasureChest(chest);
+
+        // Physics
+        this.scene.physics.add.existing(chest);
+        chest.body.setCircle(15); // Smaller radius than XP (intentional pickup)
+        chest.setDepth(10);
+
+        // Add to group
+        if (this.scene.treasureChests) {
+            this.scene.treasureChests.add(chest);
+        }
+
+        // Spawn time for despawn timer
+        chest.spawnTime = this.scene.time.now;
+
+        // Gentle bounce animation
+        this.scene.tweens.add({
+            targets: chest,
+            y: chest.y - 5,
+            duration: 600,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut',
         });
     }
 }
