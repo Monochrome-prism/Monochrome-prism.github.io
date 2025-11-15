@@ -4430,8 +4430,8 @@ class GameScene extends Phaser.Scene {
     }
 
     completeWave() {
-        // Track wave reached for achievements
-        gameState.waveReached = this.currentWave;
+        // Track wave reached for achievements (v3.4.6: FIX - use waveSystem)
+        gameState.waveReached = this.waveSystem.getCurrentWave();
 
         // Despawn shadow clones when wave ends
         if (this.shadowClones) {
@@ -4491,8 +4491,8 @@ class GameScene extends Phaser.Scene {
     gameOver() {
         this.paused = true;
 
-        // Track wave reached for achievements (even if player dies mid-wave) (v3.4.3)
-        gameState.waveReached = this.currentWave;
+        // Track wave reached for achievements (even if player dies mid-wave) (v3.4.6: FIX - use waveSystem)
+        gameState.waveReached = this.waveSystem.getCurrentWave();
 
         // Stop and destroy background music
         if (this.bgMusic) {
