@@ -511,20 +511,24 @@ export function drawBomber(graphics) {
 export function drawTreasureChest(graphics) {
     graphics.clear();
 
-    // Brown box body
+    // Gold stroke outline (v3.4.0 - 2px thick for visibility)
+    graphics.lineStyle(2, 0xFFD700, 1);
+
+    // Brown box body (v3.4.0 - doubled from 12x12 to 24x24)
     graphics.fillStyle(0x8B4513, 1); // Saddle brown
-    graphics.fillRect(-6, -6, 12, 12);
+    graphics.fillRect(-12, -12, 24, 24);
+    graphics.strokeRect(-12, -12, 24, 24);
 
-    // Darker brown outline
+    // Darker brown outline (inner detail)
     graphics.lineStyle(1, 0x654321, 1);
-    graphics.strokeRect(-6, -6, 12, 12);
+    graphics.strokeRect(-12, -12, 24, 24);
 
-    // Gold latch (horizontal bar)
+    // Gold latch (horizontal bar) - doubled size
     graphics.fillStyle(0xFFD700, 1);
-    graphics.fillRect(-2, -1, 4, 2);
+    graphics.fillRect(-4, -2, 8, 4);
 
-    // Gold lock (circle)
-    graphics.fillCircle(0, 0, 1.5);
+    // Gold lock (circle) - doubled size
+    graphics.fillCircle(0, 0, 3);
 }
 
 /**

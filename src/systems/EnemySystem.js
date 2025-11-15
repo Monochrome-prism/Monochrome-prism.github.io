@@ -645,7 +645,7 @@ export class EnemySystem {
 
         // Physics
         this.scene.physics.add.existing(chest);
-        chest.body.setCircle(15); // Smaller radius than XP (intentional pickup)
+        chest.body.setCircle(30); // Doubled collision radius for 2x size (v3.4.0)
         chest.setDepth(10);
 
         // Add to group

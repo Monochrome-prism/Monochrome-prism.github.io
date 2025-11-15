@@ -35,8 +35,9 @@
  * @property {number} [lastActionTime] - Last attack/action timestamp
  *
  * @property {boolean} [hasCriticalStrike] - Has critical strike upgrade
- * @property {number} [critChance] - Critical strike chance (0-1)
- * @property {number} [critMultiplier] - Critical damage multiplier
+ * @property {number} [critStacks] - Number of crit upgrades taken (v3.4.0+, max 4)
+ * @property {number} [critChance] - Critical strike chance (0-1, 0.25 per stack)
+ * @property {number} [critMultiplier] - Critical damage multiplier (always 2x)
  *
  * @property {number} [damageReduction] - Total damage reduction (0-1)
  * @property {number} [dodgeChance] - Chance to dodge attacks (0-1)
@@ -88,6 +89,8 @@
  * @property {number} [doubleDamageEndTime] - When double damage expires (ms)
  * @property {boolean} [hasInvincibility] - Invincibility buff active
  * @property {number} [invincibilityEndTime] - When invincibility expires (ms)
+ * @property {boolean} [hasMagnet] - Magnet buff active (v3.4.0+)
+ * @property {number} [magnetEndTime] - When magnet expires (ms) (v3.4.0+)
  */
 
 /**

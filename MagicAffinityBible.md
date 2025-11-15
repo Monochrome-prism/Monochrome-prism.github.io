@@ -1,6 +1,6 @@
 # Branded For Death: Magic Affinity - Game Design Document
 
-**Version:** 3.3.2
+**Version:** 3.4.0
 **Last Updated:** November 15, 2025
 **Status:** Complete Phase 3 - Meta-Progression with Stackable Upgrades
 
@@ -487,7 +487,7 @@ At level 1, choose one of 10 elemental types. Each element has:
 **Universal Upgrades (4 total):**
 1. **Health Boost** ❤️ - +20 Max HP, restore 30 HP immediately
 2. **Damage Boost** ⚔️ - +50% Damage
-3. **Critical Strike** 💥 - 15% chance for 2x damage with gold popup (32px font, 6px stroke)
+3. **Critical Strike** 💥 - Stackable (max 4x): 25%→50%→75%→100% crit chance, always 2x damage (v3.4.0+)
 4. **Armor Boost** 🛡️ - 25% damage reduction from all sources (max 2x)
 
 **Element-Specific Upgrades (40 total - 4 per element):**
@@ -659,34 +659,42 @@ At level 1, choose one of 10 elemental types. Each element has:
 
 **Drop Mechanics:**
 - **Drop Chance:** 5% from any enemy kill
-- **Appearance:** Brown chest with gold latch and lock
-- **Collection:** Auto-pickup on contact (20px radius)
+- **Appearance:** 24x24px brown chest with gold outline (v3.4.0: doubled size for visibility)
+- **Collection:** Auto-pickup on contact (30px radius)
 - **Persistence:** 15 second lifespan
   - Blinking warning starts at 5 seconds (200ms intervals)
   - Despawns at 15 seconds if not collected
 - **Visual:** Gentle bobbing animation (±5px vertical)
 
-**Buff Items (3 types, equal drop chance):**
+**Buff Items (4 types, equal drop chance):**
 
-1. **Red Potion** 🧪 (33.33% chance)
+1. **Red Potion** 🧪 (25% chance)
    - **Effect:** Instant heal for 50% of max HP
    - **Visual:** Red bottle with cork and liquid shine
    - **Healing Cap:** Shows green "+X HP" text even at full HP for feedback
    - **Particles:** Green healing sparkles on pickup
 
-2. **Sword** ⚔️ (33.33% chance)
+2. **Sword** ⚔️ (25% chance)
    - **Effect:** Double all damage dealt for 15 seconds
    - **Visual:** Silver blade with gold guard and brown handle
    - **Stacking:** Refreshes duration to full 15s if picked up again
    - **Interaction:** Multiplicative with critical strikes (2x × 2x = 4x total!)
    - **Buff Icon:** Top-right corner with countdown timer
 
-3. **Gold Potion** ✨ (33.33% chance)
+3. **Gold Potion** ✨ (25% chance)
    - **Effect:** Invincibility for 15 seconds (immune to all damage)
    - **Visual:** Gold bottle with cork and liquid shine
    - **Stacking:** Refreshes duration to full 15s if picked up again
    - **Visual Effect:** Pulsing gold ring around player (sine wave glow)
    - **Buff Icon:** Top-right corner with countdown timer
+
+4. **Magnet** 🧲 (25% chance) - NEW v3.4.0
+   - **Effect:** Pulls all XP orbs to player for 15 seconds
+   - **Pull Speed:** 300 pixels/second
+   - **Visual:** Magnet emoji icon
+   - **Stacking:** Refreshes duration to full 15s if picked up again
+   - **Buff Icon:** Top-right corner with countdown timer (silver background)
+   - **Behavior:** Automatically moves all XP orbs toward player; stops velocities when expired
 
 **Buff Features:**
 - **Multiple Buffs:** Can have Sword + Invincibility active simultaneously
@@ -704,8 +712,9 @@ At level 1, choose one of 10 elemental types. Each element has:
 
 **Treasure Chest Stats:**
 - **Spawn Rate:** 5% per enemy kill (independent roll)
+- **Visual Size:** 24x24px with 2px gold outline (v3.4.0: doubled from 12x12px)
 - **Drop Rate Balance:** ~1 chest every 20 enemy kills on average
-- **Buff Distribution:** Each buff type has equal 1/3 probability
+- **Buff Distribution:** Each buff type has equal 1/4 probability (25% each)
 - **Sound Effects:**
   - Chest pickup: "collect" sound (800-1200Hz ascending)
   - Buff activation: "powerup" sound (special tone)

@@ -98,7 +98,7 @@ export class CharacterSelectScene extends Phaser.Scene {
 
         // Version number (bottom left)
         this.add
-            .text(10, 590, "v3.3.2", {
+            .text(10, 590, "v3.4.0", {
                 fontSize: "14px",
                 fill: "#666666",
                 fontFamily: "Courier New",
