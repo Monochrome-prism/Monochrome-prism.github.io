@@ -234,18 +234,16 @@ export class UISystem {
         this.hpBar.fillStyle(color, 1);
         this.hpBar.fillRect(50, 651, 250 * this.displayedHealthPercent, 8);
 
-        // Animated shine overlay (v3.4.2)
+        // Animated shine overlay - simple moving white bar (v3.4.2)
         this.hpShine.clear();
         const shineOffset = (now / 30) % 300; // Move across bar every ~5s
-        const shineGradient = this.hpShine.createLinearGradient(
-            shineOffset - 20, 0,
-            shineOffset + 20, 0
-        );
-        shineGradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
-        shineGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.4)');
-        shineGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        this.hpShine.fillStyle(shineGradient);
-        this.hpShine.fillRect(50, 651, 250 * this.displayedHealthPercent, 8);
+        this.hpShine.fillStyle(0xffffff, 0.3); // White, 30% opacity
+        const shineWidth = 40;
+        const shineX = 50 + shineOffset - 20;
+        // Only draw shine within the filled portion of the bar
+        if (shineX < 50 + 250 * this.displayedHealthPercent) {
+            this.hpShine.fillRect(shineX, 651, Math.min(shineWidth, (50 + 250 * this.displayedHealthPercent) - shineX), 8);
+        }
     }
 
     /**
@@ -274,19 +272,17 @@ export class UISystem {
         this.xpBar.fillStyle(0x4169e1, 1);
         this.xpBar.fillRect(50, 669, 250 * this.displayedXPPercent, 8);
 
-        // Animated shine overlay (v3.4.2)
+        // Animated shine overlay - simple moving white bar (v3.4.2)
         this.xpShine.clear();
         const now = this.scene.time.now;
         const shineOffset = (now / 30) % 300; // Move across bar every ~5s
-        const shineGradient = this.xpShine.createLinearGradient(
-            shineOffset - 20, 0,
-            shineOffset + 20, 0
-        );
-        shineGradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
-        shineGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.4)');
-        shineGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        this.xpShine.fillStyle(shineGradient);
-        this.xpShine.fillRect(50, 669, 250 * this.displayedXPPercent, 8);
+        this.xpShine.fillStyle(0xffffff, 0.3); // White, 30% opacity
+        const shineWidth = 40;
+        const shineX = 50 + shineOffset - 20;
+        // Only draw shine within the filled portion of the bar
+        if (shineX < 50 + 250 * this.displayedXPPercent) {
+            this.xpShine.fillRect(shineX, 669, Math.min(shineWidth, (50 + 250 * this.displayedXPPercent) - shineX), 8);
+        }
     }
 
     /**
