@@ -121,6 +121,7 @@ class GameScene extends Phaser.Scene {
             maxSize: 50, // Pool up to 50 XP orbs
             runChildUpdate: false
         });
+        this.treasureChests = this.add.group(); // Treasure chests (v3.3.2+)
         this.damageNumbers = [];
         this.damageNumberPool = []; // Pool for reusable damage number text objects
 
@@ -223,6 +224,13 @@ class GameScene extends Phaser.Scene {
             this.player,
             this.xpOrbs,
             this.collectXP,
+            null,
+            this,
+        );
+        this.physics.add.overlap(
+            this.player,
+            this.treasureChests,
+            this.collectTreasureChest,
             null,
             this,
         );
@@ -2838,6 +2846,16 @@ class GameScene extends Phaser.Scene {
         // Guard against missing player or body
         if (!this.player || !this.player.body) return;
 
+        // Update buff timers (v3.3.2+)
+        this.updateBuffTimers(time);
+
+        // Clean up old buff UI and redraw (v3.3.2+)
+        if (this.buffUIElements) {
+            this.buffUIElements.forEach(el => el.destroy());
+            this.buffUIElements = [];
+        }
+        this.drawBuffIcons();
+
         // Player movement
         this.player.body.setVelocity(0);
 
@@ -2973,6 +2991,45 @@ class GameScene extends Phaser.Scene {
                 this.uiSystem.updateHealthBar(this.player);
                 this.player.lastRegenTime = time;
             }
+        }
+
+        // Update treasure chests - despawn after 15s, blink after 5s (v3.3.2+)
+        if (this.treasureChests) {
+            this.treasureChests.getChildren().forEach(chest => {
+                if (!chest.active) return;
+
+                const timeAlive = time - chest.spawnTime;
+
+                // Despawn after 15 seconds
+                if (timeAlive >= 15000) {
+                    chest.destroy();
+                    return;
+                }
+
+                // Start blinking after 5 seconds
+                if (timeAlive >= 5000) {
+                    const blinkSpeed = 200; // Blink every 200ms
+                    const shouldShow = Math.floor(timeAlive / blinkSpeed) % 2 === 0;
+                    chest.setAlpha(shouldShow ? 1 : 0.3);
+                }
+            });
+        }
+
+        // Invincibility glow effect (v3.3.2+)
+        if (this.player.hasInvincibility) {
+            if (!this.invincibilityGlow) {
+                this.invincibilityGlow = this.add.graphics();
+                this.invincibilityGlow.setDepth(9); // Behind player
+            }
+
+            // Pulsing gold glow
+            const pulse = Math.sin(time / 100) * 0.3 + 0.5; // 0.2 to 0.8
+            this.invincibilityGlow.clear();
+            this.invincibilityGlow.lineStyle(3, 0xFFD700, pulse);
+            this.invincibilityGlow.strokeCircle(this.player.x, this.player.y, 20);
+        } else if (this.invincibilityGlow) {
+            this.invincibilityGlow.destroy();
+            this.invincibilityGlow = null;
         }
 
         // Update enemies
@@ -3693,6 +3750,258 @@ class GameScene extends Phaser.Scene {
         orb.destroy();
     }
 
+    /**
+     * Collect treasure chest and apply random buff (v3.3.2+)
+     * @param {Object} player - Player object
+     * @param {Object} chest - Treasure chest object
+     * @returns {void}
+     */
+    collectTreasureChest(player, chest) {
+        if (!chest.active) return;
+
+        // Roll for random item (equal 33.33% chance each)
+        const roll = Math.random();
+        const time = this.time.now;
+
+        if (roll < 0.3333) {
+            // RED POTION - Heal 50% max HP
+            const healAmount = Math.floor(this.player.maxHealth * 0.5);
+            const actualHeal = Math.min(healAmount, this.player.maxHealth - this.player.health);
+
+            if (actualHeal > 0) {
+                this.player.health += actualHeal;
+            }
+
+            // Visual feedback (always show, even if no healing)
+            this.showHealingEffect(actualHeal);
+            this.showItemPickupMessage("Red Potion!", 0xFF0000);
+            soundFX.play("collect");
+
+        } else if (roll < 0.6666) {
+            // SWORD - Double damage for 15 seconds
+            this.player.hasDoubleDamage = true;
+            this.player.doubleDamageEndTime = time + 15000;
+
+            this.showItemPickupMessage("Double Damage!", 0xFF0000);
+            soundFX.play("powerup");
+
+        } else {
+            // GOLD POTION - Invincibility for 15 seconds
+            this.player.hasInvincibility = true;
+            this.player.invincibilityEndTime = time + 15000;
+
+            this.showItemPickupMessage("Invincibility!", 0xFFD700);
+            soundFX.play("powerup");
+        }
+
+        // Update health bar if healed
+        if (roll < 0.3333) {
+            this.uiSystem.updateHealthBar(this.player);
+        }
+
+        // Destroy chest
+        chest.destroy();
+    }
+
+    /**
+     * Show healing visual effect (v3.3.2+)
+     * @param {number} amount - Amount healed
+     * @returns {void}
+     */
+    showHealingEffect(amount) {
+        // Green healing text
+        const text = this.add.text(
+            this.player.x,
+            this.player.y - 30,
+            `+${amount} HP`,
+            {
+                fontSize: "24px",
+                fill: "#00FF00",
+                fontFamily: "Courier New",
+                fontStyle: "bold",
+                stroke: "#000000",
+                strokeThickness: 4,
+            }
+        );
+        text.setDepth(1000);
+
+        // Float up and fade
+        this.tweens.add({
+            targets: text,
+            y: text.y - 40,
+            alpha: 0,
+            duration: 1000,
+            onComplete: () => text.destroy(),
+        });
+
+        // Green particle burst
+        for (let i = 0; i < 8; i++) {
+            const particle = this.add.graphics();
+            particle.x = this.player.x;
+            particle.y = this.player.y;
+            particle.fillStyle(0x00FF00, 1);
+            particle.fillCircle(0, 0, 3);
+            particle.setDepth(50);
+
+            const angle = (i / 8) * Math.PI * 2;
+            const distance = 25;
+
+            this.tweens.add({
+                targets: particle,
+                x: particle.x + Math.cos(angle) * distance,
+                y: particle.y + Math.sin(angle) * distance,
+                alpha: 0,
+                duration: 600,
+                onComplete: () => particle.destroy(),
+            });
+        }
+    }
+
+    /**
+     * Show item pickup message in center of screen (v3.3.2+)
+     * @param {string} message - Message to display
+     * @param {number} color - Text color
+     * @returns {void}
+     */
+    showItemPickupMessage(message, color) {
+        const text = this.add.text(
+            400,
+            300,
+            message,
+            {
+                fontSize: "32px",
+                fill: '#' + color.toString(16).padStart(6, '0'),
+                fontFamily: "Courier New",
+                fontStyle: "bold",
+                stroke: "#000000",
+                strokeThickness: 6,
+            }
+        );
+        text.setOrigin(0.5);
+        text.setDepth(2000);
+        text.setAlpha(0);
+
+        // Fade in then out
+        this.tweens.add({
+            targets: text,
+            alpha: 1,
+            duration: 200,
+            yoyo: true,
+            hold: 300,
+            onComplete: () => text.destroy(),
+        });
+    }
+
+    /**
+     * Update buff timers and remove expired buffs (v3.3.2+)
+     * @param {number} time - Current time in ms
+     * @returns {void}
+     */
+    updateBuffTimers(time) {
+        // Check double damage expiration
+        if (this.player.hasDoubleDamage && time >= this.player.doubleDamageEndTime) {
+            this.player.hasDoubleDamage = false;
+            this.showBuffExpiredMessage("Double Damage Expired");
+        }
+
+        // Check invincibility expiration
+        if (this.player.hasInvincibility && time >= this.player.invincibilityEndTime) {
+            this.player.hasInvincibility = false;
+            this.showBuffExpiredMessage("Invincibility Expired");
+        }
+    }
+
+    /**
+     * Show buff expired message (v3.3.2+)
+     * @param {string} message - Message to display
+     * @returns {void}
+     */
+    showBuffExpiredMessage(message) {
+        const text = this.add.text(
+            400,
+            350,
+            message,
+            {
+                fontSize: "20px",
+                fill: "#888888",
+                fontFamily: "Courier New",
+                stroke: "#000000",
+                strokeThickness: 3,
+            }
+        );
+        text.setOrigin(0.5);
+        text.setDepth(2000);
+
+        // Fade out
+        this.tweens.add({
+            targets: text,
+            alpha: 0,
+            duration: 1000,
+            onComplete: () => text.destroy(),
+        });
+    }
+
+    /**
+     * Draw active buff icons (v3.3.2+)
+     * @returns {void}
+     */
+    drawBuffIcons() {
+        const time = this.time.now;
+        let yOffset = 80; // Start below score
+
+        // Double damage buff
+        if (this.player.hasDoubleDamage) {
+            const timeLeft = Math.ceil((this.player.doubleDamageEndTime - time) / 1000);
+            const text = `⚔️  ${timeLeft}s`;
+
+            // Red background
+            const bg = this.add.graphics();
+            bg.fillStyle(0xFF0000, 0.3);
+            bg.fillRoundedRect(650, yOffset - 5, 140, 30, 5);
+            bg.setDepth(150);
+
+            // Text
+            const buffText = this.add.text(660, yOffset, text, {
+                fontSize: "20px",
+                fill: "#FFFFFF",
+                fontFamily: "Courier New",
+                fontStyle: "bold",
+            });
+            buffText.setDepth(151);
+
+            // Store references for cleanup
+            if (!this.buffUIElements) this.buffUIElements = [];
+            this.buffUIElements.push(bg, buffText);
+
+            yOffset += 35;
+        }
+
+        // Invincibility buff
+        if (this.player.hasInvincibility) {
+            const timeLeft = Math.ceil((this.player.invincibilityEndTime - time) / 1000);
+            const text = `✨ ${timeLeft}s`;
+
+            // Gold background
+            const bg = this.add.graphics();
+            bg.fillStyle(0xFFD700, 0.3);
+            bg.fillRoundedRect(650, yOffset - 5, 140, 30, 5);
+            bg.setDepth(150);
+
+            // Text
+            const buffText = this.add.text(660, yOffset, text, {
+                fontSize: "20px",
+                fill: "#FFFFFF",
+                fontFamily: "Courier New",
+                fontStyle: "bold",
+            });
+            buffText.setDepth(151);
+
+            // Store references for cleanup
+            if (!this.buffUIElements) this.buffUIElements = [];
+            this.buffUIElements.push(bg, buffText);
+        }
+    }
+
     tankLaserHitPlayer(player, laser) {
         // Check if player is invulnerable or leveling up
         if (!laser.active || this.player.invulnerable || this.player.isLevelingUp) return;
@@ -3808,9 +4117,14 @@ class GameScene extends Phaser.Scene {
         let finalDamage = baseDamage;
         let isCrit = false;
 
-        // Check for critical strike
+        // Apply double damage buff FIRST (v3.3.2+)
+        if (this.player.hasDoubleDamage) {
+            finalDamage *= 2;
+        }
+
+        // Check for critical strike (can stack with double damage for 4x!)
         if (this.player.hasCriticalStrike && Math.random() < this.player.critChance) {
-            finalDamage = Math.floor(baseDamage * this.player.critMultiplier);
+            finalDamage = Math.floor(finalDamage * this.player.critMultiplier);
             isCrit = true;
         }
 
@@ -3819,7 +4133,7 @@ class GameScene extends Phaser.Scene {
 
         // Show damage number with CRIT! text if critical
         if (isCrit) {
-            this.showDamageNumber(enemy.x, enemy.y - 10, `CRIT! ${finalDamage}`, 0xffff00, true);
+            this.showDamageNumber(enemy.x, enemy.y - 10, `CRIT! ${finalDamage}`, 0xFFD700, true);
 
             // Create particle burst for critical strike
             for (let i = 0; i < 8; i++) {
@@ -3893,9 +4207,9 @@ class GameScene extends Phaser.Scene {
         }
 
         // Scale font size for mobile (larger for crits)
-        const baseFontSize = isCrit ? 28 : 20;
+        const baseFontSize = isCrit ? 32 : 20;
         const fontSize = Math.floor(baseFontSize * this.mobileScale);
-        const strokeThickness = Math.floor((isCrit ? 4 : 3) * this.mobileScale);
+        const strokeThickness = Math.floor((isCrit ? 6 : 3) * this.mobileScale);
 
         // Try to get text from pool first
         let text = this.damageNumberPool.pop();
@@ -3937,7 +4251,7 @@ class GameScene extends Phaser.Scene {
     }
 
     playerHitEnemy(player, enemy) {
-        if (!enemy.active || this.player.invulnerable || this.player.isLevelingUp) return;
+        if (!enemy.active || this.player.invulnerable || this.player.isLevelingUp || this.player.hasInvincibility) return;
 
         // Void Step (Celestial) - chance to dodge attacks
         if (this.player.dodgeChance && Math.random() < this.player.dodgeChance) {

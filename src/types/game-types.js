@@ -82,6 +82,12 @@
  * @property {number} [fearChanceBonus] - Bonus fear chance (0-1, stackable)
  * @property {boolean} [hasVoidClone] - Has second shadow clone
  * @property {boolean} [hasUmbralShroud] - Enemies have reduced accuracy
+ *
+ * // Treasure chest buffs (v3.3.2+)
+ * @property {boolean} [hasDoubleDamage] - Double damage buff active
+ * @property {number} [doubleDamageEndTime] - When double damage expires (ms)
+ * @property {boolean} [hasInvincibility] - Invincibility buff active
+ * @property {number} [invincibilityEndTime] - When invincibility expires (ms)
  */
 
 /**
